@@ -1,0 +1,6 @@
+framework module Pods_TFY_CacheFileKit {
+  umbrella header "Pods-TFY_CacheFileKit-umbrella.h"
+
+  export *
+  module * { export * }
+}
