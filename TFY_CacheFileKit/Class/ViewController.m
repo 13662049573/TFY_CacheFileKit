@@ -46,8 +46,7 @@
     [[TFY_OpenFileTool sharedOpenfileTool] openFileWithFilePath:filePath andItem:barBtn andNavTitleName:@"浏览" andVC:self Document:TFY_DocumentOptionsMenu];
 }
 
-- (void)buttonClick
-{
+- (void)buttonClick {
     // 默认
     TFY_CacheFileViewController *cacheVC = [[TFY_CacheFileViewController alloc] init];
     [TFY_CacheFileManager shareManager].showImageShuffling = YES;

@@ -17,6 +17,9 @@ typedef enum : NSUInteger {
 NS_ASSUME_NONNULL_BEGIN
 
 @interface TFY_FilePreviewController : QLPreviewController
+/**自定义文件名称*/
+@property (nonatomic, strong) NSString *previewItemTitle;
+
 /** 预览多个文件 单个文件时数组传一个 */
 - (void)previewFileWithPaths:(NSArray <NSURL *>*)filePathArr on:(UIViewController *)vc jump:(TFY_JumpMode)jump;
 

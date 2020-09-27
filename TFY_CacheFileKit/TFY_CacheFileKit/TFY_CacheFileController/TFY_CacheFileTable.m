@@ -83,7 +83,6 @@
                 [tableView reloadRowsAtIndexPaths:@[self.previousIndex] withRowAnimation:UITableViewRowAnimationNone];
             }
         }
-        
         self.previousIndex = indexPath;
     }
 
@@ -123,9 +122,7 @@
     // 系统数据不可删除
     if ([[TFY_CacheFileManager shareManager] isFileSystemWithFilePath:model.filePath]) {
         UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提示" message:@"系统文件不能删除" preferredStyle:UIAlertControllerStyleAlert];
-        [alertController addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-            
-        }]];
+        [alertController addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {}]];
         [[TFY_CacheFileUilt presentMenuView] presentViewController:alertController animated:YES completion:nil];
         return;
     }

@@ -6,6 +6,7 @@
 //
 
 #import "TFY_FilePreviewController.h"
+#import "TFY_PreviewCustomItem.h"
 
 @interface TFY_FilePreviewController ()<QLPreviewControllerDataSource, QLPreviewControllerDelegate>
 @property (nonatomic, copy) void(^willDismissBlock)(void);
@@ -81,7 +82,14 @@
 }
 
 - (id <QLPreviewItem>)previewController:(QLPreviewController *)controller previewItemAtIndex:(NSInteger)index{
-    return  self.fileUrlList[index];
+    if (self.previewItemTitle != nil) {
+        TFY_PreviewCustomItem *item = TFY_PreviewCustomItem.new;
+        item.previewItemTitle = self.previewItemTitle;
+        item.previewItemURL = self.fileUrlList[index];
+        return item;
+    } else {
+        return  self.fileUrlList[index];
+    }
 }
 
 #pragma mark - QLPreviewControllerDelegate
