@@ -23,12 +23,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  通过自定义按钮点击 开启UIDocumentIntractionController选择打开文件
  */
-- (void)openFileWithFilePath:(NSString *)filePath andVC:(UIViewController *)viewController andNavTitleName:(NSString *)name Document:(TFY_DocumentMode)document;
+- (void)openFileWithFilePath:(NSURL *)filePath andVC:(UIViewController *)viewController andNavTitleName:(NSString *)name Document:(TFY_DocumentMode)document;
 
 /**
  通过导航栏BarButtonItem 开启UIDocumentIntractionController选择打开文件
  */
-- (void)openFileWithFilePath:(NSString *)filePath andItem:(UIBarButtonItem *)barButtonItem andNavTitleName:(NSString *)name andVC:(UIViewController *)viewController Document:(TFY_DocumentMode)document;
+- (void)openFileWithFilePath:(NSURL *)filePath andItem:(UIBarButtonItem *)barButtonItem andNavTitleName:(NSString *)name andVC:(UIViewController *)viewController Document:(TFY_DocumentMode)document;
 
 @end
 

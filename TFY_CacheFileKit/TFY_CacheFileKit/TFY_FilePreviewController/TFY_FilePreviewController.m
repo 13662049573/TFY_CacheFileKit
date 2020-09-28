@@ -75,6 +75,24 @@
     [self reloadData];
 }
 
+//加载数据 同时设置当前预览的文件  多文件
+- (void)loadUrlPathList:(NSArray<NSURL *> *)urlPathList andCurrentPreVItemIndex:(NSInteger)index {
+    for (NSURL *urlPath in urlPathList) {
+        if ([TFY_FilePreviewController canPreviewItem:urlPath]) {
+            [self.fileUrlList addObject:urlPath];
+        }
+    }
+    self.currentPreviewItemIndex = index;
+    [self reloadData];
+}
+//单文件
+- (void)loadUrlPath:(NSURL *)fileUrl {
+    if ([TFY_FilePreviewController canPreviewItem:fileUrl]) {
+        [self.fileUrlList addObject:fileUrl];
+    }
+    [self reloadData];
+}
+
 #pragma mark - QLPreviewControllerDataSource
 
 - (NSInteger)numberOfPreviewItemsInPreviewController:(QLPreviewController *)controller{

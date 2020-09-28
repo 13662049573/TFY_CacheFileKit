@@ -30,9 +30,9 @@ static TFY_OpenFileTool *_openFileTool;
  * parameter  显示所在控制器
  * parameter  预览导航栏的标题
  */
-- (void)openFileWithFilePath:(NSString *)filePath andVC:(UIViewController *)viewController andNavTitleName:(NSString *)name Document:(TFY_DocumentMode)document{
+- (void)openFileWithFilePath:(NSURL *)filePath andVC:(UIViewController *)viewController andNavTitleName:(NSString *)name Document:(TFY_DocumentMode)document{
     self.viewController = viewController;
-    self.documentIntController = [UIDocumentInteractionController interactionControllerWithURL:[NSURL fileURLWithPath:filePath]];
+    self.documentIntController = [UIDocumentInteractionController interactionControllerWithURL:filePath];
     self.documentIntController.name = name;
     self.documentIntController.delegate = self;
     switch (document) {
@@ -54,9 +54,9 @@ static TFY_OpenFileTool *_openFileTool;
  * parameter  显示所在控制器
  * parameter  预览导航栏的标题
  */
-- (void)openFileWithFilePath:(NSString *)filePath andItem:(UIBarButtonItem *)barButtonItem andNavTitleName:(NSString *)name andVC:(UIViewController *)viewController Document:(TFY_DocumentMode)document {
+- (void)openFileWithFilePath:(NSURL *)filePath andItem:(UIBarButtonItem *)barButtonItem andNavTitleName:(NSString *)name andVC:(UIViewController *)viewController Document:(TFY_DocumentMode)document {
     self.viewController = viewController;
-    self.documentIntController = [UIDocumentInteractionController interactionControllerWithURL:[NSURL fileURLWithPath:filePath]];
+    self.documentIntController = [UIDocumentInteractionController interactionControllerWithURL:filePath];
     self.documentIntController.name = name;
     self.documentIntController.delegate = self;
     switch (document) {

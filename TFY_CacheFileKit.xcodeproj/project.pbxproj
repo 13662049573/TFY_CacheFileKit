@@ -36,6 +36,7 @@
 		365EF857251DE3070020C3E2 /* 无我资料.zip in Resources */ = {isa = PBXBuildFile; fileRef = 365EF856251DE3070020C3E2 /* 无我资料.zip */; };
 		365EF85C251DE45F0020C3E2 /* 4.xlsx in Resources */ = {isa = PBXBuildFile; fileRef = 365EF85B251DE45F0020C3E2 /* 4.xlsx */; };
 		36832FFC25209105007BECD2 /* TFY_PreviewCustomItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 36832FFB25209105007BECD2 /* TFY_PreviewCustomItem.m */; };
+		36857EAD25216CC80029C3D4 /* ThecustomController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36857EAC25216CC80029C3D4 /* ThecustomController.m */; };
 		88344FE747BB86F053CC3172 /* Pods_TFY_CacheFileKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F58A461449BB3B50E14CA1E /* Pods_TFY_CacheFileKit.framework */; };
 		C1236371BA63978D15FFF922 /* Pods_TFY_CacheFileKit_TFY_CacheFileKitUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69D1C4A83388DC577885E003 /* Pods_TFY_CacheFileKit_TFY_CacheFileKitUITests.framework */; };
 		C9865F8D349700F1C88D9EE3 /* Pods_TFY_CacheFileKitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6991EFE4CE22C09B3F31D19 /* Pods_TFY_CacheFileKitTests.framework */; };
@@ -115,6 +116,8 @@
 		365EF85B251DE45F0020C3E2 /* 4.xlsx */ = {isa = PBXFileReference; lastKnownFileType = file; path = 4.xlsx; sourceTree = "<group>"; };
 		36832FFA25209105007BECD2 /* TFY_PreviewCustomItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TFY_PreviewCustomItem.h; sourceTree = "<group>"; };
 		36832FFB25209105007BECD2 /* TFY_PreviewCustomItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TFY_PreviewCustomItem.m; sourceTree = "<group>"; };
+		36857EAB25216CC80029C3D4 /* ThecustomController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ThecustomController.h; sourceTree = "<group>"; };
+		36857EAC25216CC80029C3D4 /* ThecustomController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ThecustomController.m; sourceTree = "<group>"; };
 		5C0FADD3F2F0209EA5CCDDCB /* Pods-TFY_CacheFileKit-TFY_CacheFileKitUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TFY_CacheFileKit-TFY_CacheFileKitUITests.debug.xcconfig"; path = "Target Support Files/Pods-TFY_CacheFileKit-TFY_CacheFileKitUITests/Pods-TFY_CacheFileKit-TFY_CacheFileKitUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		69D1C4A83388DC577885E003 /* Pods_TFY_CacheFileKit_TFY_CacheFileKitUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TFY_CacheFileKit_TFY_CacheFileKitUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C6F355CD07B125E15632DF0 /* Pods-TFY_CacheFileKitTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TFY_CacheFileKitTests.debug.xcconfig"; path = "Target Support Files/Pods-TFY_CacheFileKitTests/Pods-TFY_CacheFileKitTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -219,6 +222,8 @@
 				365EF842251DE2CD0020C3E2 /* 2.jpg */,
 				363D40C1251D95ED00932D3E /* ViewController.h */,
 				363D40C0251D95ED00932D3E /* ViewController.m */,
+				36857EAB25216CC80029C3D4 /* ThecustomController.h */,
+				36857EAC25216CC80029C3D4 /* ThecustomController.m */,
 			);
 			path = Class;
 			sourceTree = "<group>";
@@ -579,6 +584,7 @@
 				363D40EE251D9D4E00932D3E /* TFY_CacheFileUilt.m in Sources */,
 				363D40E2251D993700932D3E /* TFY_CacheFileAudio.m in Sources */,
 				360D0D5E251DC8B8001CF42B /* TFY_CacheFileCollection.m in Sources */,
+				36857EAD25216CC80029C3D4 /* ThecustomController.m in Sources */,
 				363D40C9251D95EE00932D3E /* SceneDelegate.m in Sources */,
 				365EF817251DD7B60020C3E2 /* TFY_CacheFileTable.m in Sources */,
 				363D4097251D956B00932D3E /* main.m in Sources */,

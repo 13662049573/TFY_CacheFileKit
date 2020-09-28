@@ -7,7 +7,7 @@
 
 #import "ViewController.h"
 #import "TFY_CacheFileKit.h"
-
+#import "ThecustomController.h"
 
 @interface ViewController ()<UIDocumentInteractionControllerDelegate>
 @property(nonatomic , strong)UIDocumentInteractionController *documentController;
@@ -20,13 +20,19 @@
     
     self.title = @"缓存目录";
     
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Cache" style:UIBarButtonItemStyleDone target:self action:@selector(buttonClick)];
-    
     UIBarButtonItem *item1 = [[UIBarButtonItem alloc] initWithTitle:@"浏览" style:UIBarButtonItemStyleDone target:self action:@selector(preview)];
     
     UIBarButtonItem *item2 = [[UIBarButtonItem alloc] initWithTitle:@"分享文件" style:UIBarButtonItemStyleDone target:self action:@selector(shareFile:)];
     
     self.navigationItem.leftBarButtonItems = @[item2,item1];
+    
+    
+    UIBarButtonItem *item3 = [[UIBarButtonItem alloc] initWithTitle:@"自定义" style:UIBarButtonItemStyleDone target:self action:@selector(ThecustomClick)];
+    
+    UIBarButtonItem *item4 = [[UIBarButtonItem alloc] initWithTitle:@"缓存" style:UIBarButtonItemStyleDone target:self action:@selector(buttonClick)];
+    
+    self.navigationItem.rightBarButtonItems = @[item3,item4];
+    
 }
 
 //预览文件(注册应用程序支持的文件类型)
@@ -42,8 +48,17 @@
 
 //分享文件
 - (void)shareFile:(UIBarButtonItem *)barBtn {
-    NSString *filePath = [[NSBundle mainBundle] pathForResource:@"说明书-青蛙头.pdf" ofType:nil];
-    [[TFY_OpenFileTool sharedOpenfileTool] openFileWithFilePath:filePath andItem:barBtn andNavTitleName:@"浏览" andVC:self Document:TFY_DocumentOptionsMenu];
+    NSURL *url4 = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"女性备孕体温计协议调试命令.txt" ofType:nil]];
+    [[TFY_OpenFileTool sharedOpenfileTool] openFileWithFilePath:url4 andItem:barBtn andNavTitleName:@"浏览" andVC:self Document:TFY_DocumentOptionsMenu];
+}
+
+
+//自定义界面
+- (void)ThecustomClick {
+    NSURL *url2 = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"说明书-青蛙头.pdf" ofType:nil]];
+    ThecustomController *vc = ThecustomController.new;
+    vc.urlPath = url2;
+    [self.navigationController pushViewController:vc animated:YES];
 }
 
 - (void)buttonClick {

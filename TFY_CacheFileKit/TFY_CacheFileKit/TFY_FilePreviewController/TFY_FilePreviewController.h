@@ -35,6 +35,14 @@ NS_ASSUME_NONNULL_BEGIN
 /** 将要访问文件中的Url回调  BOOL 是否允许访问*/
 - (void)setShouldOpenUrlBlock:(BOOL (^)(NSURL *, id<QLPreviewItem>))shouldOpenUrlBlock;
 
+#pragma mark ------- 自定义浏览器使用 --------
+
+//加载数据 同时设置当前预览的文件  多文件
+- (void)loadUrlPathList:(NSArray<NSURL *> *)urlPathList andCurrentPreVItemIndex:(NSInteger)index;
+
+//单文件
+- (void)loadUrlPath:(NSURL *)fileUrl;
+
 @end
 
 NS_ASSUME_NONNULL_END
