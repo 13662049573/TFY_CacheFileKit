@@ -758,23 +758,38 @@
  *
  *  @return NSString
  */
-+ (NSString *)fileSizeStringConversionWithNumber:(double)fileSize
-{
-    NSString *message = nil;
++ (NSString *)fileSizeStringConversionWithNumber:(double)fileSize {
+    //保留小数点后两位
+    NSNumber *valbueIndex = [NSNumber numberWithDouble:fileSize];
+    NSDecimalNumber *kb_Nuber = [[NSDecimalNumber alloc] initWithFloat:1024];
+    NSDecimalNumber *mb_Nuber = [kb_Nuber decimalNumberByMultiplyingBy:kb_Nuber];//乘法
+    NSDecimalNumber *gb_Nuber = [mb_Nuber decimalNumberByMultiplyingBy:kb_Nuber];//乘法
+    NSDecimalNumber *number = [[NSDecimalNumber alloc] initWithDecimal:valbueIndex.decimalValue];
+    NSDecimalNumberHandler *behavior = [NSDecimalNumberHandler decimalNumberHandlerWithRoundingMode:NSRoundUp scale:2 raiseOnExactness:NO raiseOnOverflow:NO raiseOnUnderflow:NO raiseOnDivideByZero:YES];
     
-    // 1MB = 1024KB 1KB = 1024B
-    double size = fileSize;
-    if (size > (1024 * 1024)) {
-        size = size / (1024 * 1024);
-        message = [NSString stringWithFormat:@"%.2fM", size];
-    } else if (size > 1024) {
-        size = size / 1024;
-        message = [NSString stringWithFormat:@"%.2fKB", size];
-    } else if (size > 0.0) {
-        message = [NSString stringWithFormat:@"%.2fB", size];
+    if (number.integerValue >= gb_Nuber.integerValue) {
+        NSDecimalNumber *mubner2 = [number decimalNumberByDividingBy:gb_Nuber];//除法
+        NSDecimalNumber *number5 = [mubner2 decimalNumberByRoundingAccordingToBehavior:behavior];
+        return [NSString stringWithFormat:@"%@ GB", number5];
+    } else if (number.integerValue >= mb_Nuber.integerValue) {
+        NSDecimalNumber *mubner2 = [number decimalNumberByDividingBy:mb_Nuber];//除法
+        NSDecimalNumber *number5 = [mubner2 decimalNumberByRoundingAccordingToBehavior:behavior];
+        if (mubner2.integerValue > 100) {
+            return [NSString stringWithFormat:@"%@ MB", number5];
+        }else{
+            return [NSString stringWithFormat:@"%@ MB", number5];
+        }
+    } else if (number.integerValue >= kb_Nuber.integerValue) {
+        NSDecimalNumber *mubner2 = [number decimalNumberByDividingBy:kb_Nuber];//除法
+        NSDecimalNumber *number5 = [mubner2 decimalNumberByRoundingAccordingToBehavior:behavior];
+        if (mubner2.integerValue > 100) {
+            return [NSString stringWithFormat:@"%@ KB", number5];
+        }else{
+            return [NSString stringWithFormat:@"%@ KB", number5];
+        }
+    } else {
+        return @"1 KB";
     }
-    
-    return message;
 }
 
 /**
