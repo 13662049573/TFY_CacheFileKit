@@ -8,7 +8,7 @@
 #import "ViewController.h"
 #import "TFY_CacheFileKit.h"
 #import "ThecustomController.h"
-
+#import "NAVViewController.h"
 @interface ViewController ()<UIDocumentInteractionControllerDelegate>
 @property(nonatomic , strong)UIDocumentInteractionController *documentController;
 @end
@@ -31,6 +31,7 @@
     
     UIBarButtonItem *item4 = [[UIBarButtonItem alloc] initWithTitle:@"缓存" style:UIBarButtonItemStyleDone target:self action:@selector(buttonClick)];
     
+
     self.navigationItem.rightBarButtonItems = @[item3,item4];
     
 }
@@ -130,4 +131,9 @@
     //加载request
     [webV loadRequest:request];
 }
+
+- (void)buttonClick222 {
+    [self.navigationController pushViewController:NAVViewController.new animated:YES];
+}
+
 @end
