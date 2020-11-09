@@ -405,9 +405,6 @@ typedef NS_ENUM(NSUInteger, Temperature) {
 /***   保存模型id*/
 +(void)saveValueInUD:(id)value forKey:(NSString *)key;
 
-/**将视图添加最上层的--Window--*/
-+(UIWindow *)lastWindow;
-
 /***  获取保存的id*/
 +(id)getValueInUDWithKey:(NSString *)key;
 

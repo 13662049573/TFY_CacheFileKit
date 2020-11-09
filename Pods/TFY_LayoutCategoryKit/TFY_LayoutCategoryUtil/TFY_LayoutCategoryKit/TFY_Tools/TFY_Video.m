@@ -62,11 +62,6 @@ static TFY_Video *instance = nil;
                                        [NSNumber numberWithInt:size.width], AVVideoWidthKey,
                                        [NSNumber numberWithInt:size.height], AVVideoHeightKey, nil];
        writerInput = [AVAssetWriterInput assetWriterInputWithMediaType:AVMediaTypeVideo outputSettings:videoSettings];
-    } else {
-        NSDictionary *videoSettings = [NSDictionary dictionaryWithObjectsAndKeys:AVVideoCodecH264, AVVideoCodecKey,
-                                       [NSNumber numberWithInt:size.width], AVVideoWidthKey,
-                                       [NSNumber numberWithInt:size.height], AVVideoHeightKey, nil];
-       writerInput = [AVAssetWriterInput assetWriterInputWithMediaType:AVMediaTypeVideo outputSettings:videoSettings];
     }
     
     NSDictionary *sourcePixelBufferAttributesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:kCVPixelFormatType_32ARGB], kCVPixelBufferPixelFormatTypeKey, nil];
@@ -146,12 +141,7 @@ static TFY_Video *instance = nil;
                                        [NSNumber numberWithInt:size.width], AVVideoWidthKey,
                                        [NSNumber numberWithInt:size.height], AVVideoHeightKey, nil];
        writerInput = [AVAssetWriterInput assetWriterInputWithMediaType:AVMediaTypeVideo outputSettings:videoSettings];
-    } else {
-        NSDictionary *videoSettings = [NSDictionary dictionaryWithObjectsAndKeys:AVVideoCodecH264, AVVideoCodecKey,
-                                       [NSNumber numberWithInt:size.width], AVVideoWidthKey,
-                                       [NSNumber numberWithInt:size.height], AVVideoHeightKey, nil];
-       writerInput = [AVAssetWriterInput assetWriterInputWithMediaType:AVMediaTypeVideo outputSettings:videoSettings];
-    }
+    } 
     
     NSDictionary *sourcePixelBufferAttributesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:kCVPixelFormatType_32ARGB], kCVPixelBufferPixelFormatTypeKey, nil];
     

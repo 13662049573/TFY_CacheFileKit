@@ -268,17 +268,6 @@ const char* jailbreak_tool_pathes[] = {
                     netconnType = @"未知";
                 }
             }];
-        } else {
-            NSString *accessString = teleInfo.currentRadioAccessTechnology;
-            if ([typeStrings4G containsObject:accessString]) {
-                netconnType = @"4G";
-            } else if ([typeStrings3G containsObject:accessString]) {
-                netconnType = @"3G";
-            } else if ([typeStrings2G containsObject:accessString]) {
-                netconnType = @"2G";
-            } else {
-                netconnType = @"未知";
-            }
         }
     }
     else {
@@ -298,11 +287,6 @@ const char* jailbreak_tool_pathes[] = {
                 result = YES;
             }
         }];
-    } else {
-        CTCarrier *obj = netIInfo.subscriberCellularProvider;
-        if (obj.isoCountryCode.length) {
-            result = YES;
-        }
     }
     return result;
 }
@@ -330,38 +314,6 @@ const char* jailbreak_tool_pathes[] = {
                 return SSOperatorsTypeUnknown;
             }
         }
-    }
-    CTCarrier *carrier = [telephonyInfo subscriberCellularProvider];
-    NSString *currentCountryCode = [carrier mobileCountryCode];
-    NSString *mobileNetWorkCode = [carrier mobileNetworkCode];
-    
-    if (![currentCountryCode isEqualToString:@"460"]) {
-        return SSOperatorsTypeUnknown;
-    }
-    if ([mobileNetWorkCode isEqualToString:@"00"] ||
-        [mobileNetWorkCode isEqualToString:@"02"] ||
-        [mobileNetWorkCode isEqualToString:@"07"]) {
-        // 中国移动
-        return SSOperatorsTypeChinaMobile;
-    }
-    
-    if ([mobileNetWorkCode isEqualToString:@"01"] ||
-        [mobileNetWorkCode isEqualToString:@"06"] ||
-        [mobileNetWorkCode isEqualToString:@"09"]) {
-        // 中国联通
-        return SSOperatorsTypeChinaUnicom;
-    }
-    
-    if ([mobileNetWorkCode isEqualToString:@"03"] ||
-        [mobileNetWorkCode isEqualToString:@"05"] ||
-        [mobileNetWorkCode isEqualToString:@"11"]) {
-        // 中国电信
-        return SSOperatorsTypeTelecom;
-    }
-    
-    if ([mobileNetWorkCode isEqualToString:@"20"]) {
-        // 中国铁通
-        return SSOperatorsTypeChinaTietong;
     }
     return SSOperatorsTypeUnknown;
 }
@@ -577,24 +529,6 @@ const char* jailbreak_tool_pathes[] = {
         languageCode = @"en";//英语
     }
     [self setLanguage:languageCode];
-}
-
-+(UIWindow*)lastWindow {
-    NSEnumerator  *frontToBackWindows = [UIApplication.sharedApplication.windows reverseObjectEnumerator];
-    for (UIWindow *window in frontToBackWindows) {
-        BOOL windowOnMainScreen = window.screen == UIScreen.mainScreen;
-
-        BOOL windowIsVisible = !window.hidden&& window.alpha>0;
-
-        BOOL windowLevelSupported = (window.windowLevel >= UIWindowLevelNormal && window.windowLevel <= UIWindowLevelNormal);
-
-        BOOL windowKeyWindow = window.isKeyWindow;
-        
-        if (windowOnMainScreen && windowIsVisible && windowLevelSupported && windowKeyWindow) {
-            return window;
-        }
-    }
-    return [UIApplication sharedApplication].keyWindow;
 }
 
 #pragma mark------------------------------------------国际化设置---------------------------------------
