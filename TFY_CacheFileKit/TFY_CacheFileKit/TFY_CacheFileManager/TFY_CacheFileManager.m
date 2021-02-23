@@ -146,10 +146,10 @@
         if (TFY_CacheFileTypeUnknow == type) {
             // 过滤系统文件夹
             // 原方法
-//            NSRange range = [model.filePath rangeOfString:@"." options:NSBackwardsSearch];
-//            if (range.location != NSNotFound) {
-//                continue;
-//            }
+            NSRange range = [model.filePath rangeOfString:@"." options:NSBackwardsSearch];
+            if (range.location != NSNotFound) {
+                continue;
+            }
             if ([model.fileName hasPrefix:@"."] || ![TFY_CacheFileManager isFileDirectoryWithFilePath:model.filePath]) {
                 continue;
             }
