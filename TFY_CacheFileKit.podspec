@@ -2,7 +2,7 @@
 Pod::Spec.new do |spec|
   spec.name         = "TFY_CacheFileKit"
 
-  spec.version      = "2.0.5"
+  spec.version      = "2.0.7"
 
   spec.summary      = "文件管理，分享，浏览"
 
@@ -14,9 +14,9 @@ Pod::Spec.new do |spec|
   
   spec.license      = "MIT"
   
-  spec.author             = { "田风有" => "420144542@qq.com" }
+  spec.author       = { "田风有" => "420144542@qq.com" }
   
-  spec.platform     = :ios, "10.0"
+  spec.platform     = :ios, "12.0"
 
   spec.source       = { :git => "https://github.com/13662049573/TFY_CacheFileKit.git", :tag => spec.version }
 
