@@ -27,11 +27,16 @@
 #import "UIImage+TFYCategory.h"
 #import "TFY_NavigationBarViewController.h"
 #import "TFY_NavigationController.h"
+#import "TFY_PageBasicTitleView 2.h"
 #import "TFY_PageBasicTitleView.h"
 #import "TFY_PageControllerConfig.h"
+#import "TFY_PageControllerUtil 2.h"
 #import "TFY_PageControllerUtil.h"
+#import "TFY_PageSegmentedTitleView 2.h"
 #import "TFY_PageSegmentedTitleView.h"
+#import "TFY_PageTitleCell 2.h"
 #import "TFY_PageTitleCell.h"
+#import "TFY_PageViewController 2.h"
 #import "TFY_PageViewController.h"
 
 FOUNDATION_EXPORT double TFY_NavigationVersionNumber;
