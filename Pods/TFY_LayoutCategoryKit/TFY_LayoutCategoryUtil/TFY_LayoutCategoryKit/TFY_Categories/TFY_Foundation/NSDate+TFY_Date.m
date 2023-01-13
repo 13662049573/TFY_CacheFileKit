@@ -780,9 +780,9 @@
     return (([comp1 day] == [comp2 day]) && ([comp1 month] == [comp2 month]) && ([comp1 year] == [comp2 year]));
 }
 /// 获取年
-+ (NSInteger)tfy_year_str:(NSString *)dateStr {
++ (NSInteger)tfy_year_str:(NSString *)dateStr Format:(NSString *)Format{
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"yyyy-MM-dd"];
+    [dateFormatter setDateFormat:Format];
     [dateFormatter setLocale:[NSLocale currentLocale]];
     NSDate *startDate = [dateFormatter dateFromString:dateStr];
     NSDateComponents *components = [[NSCalendar currentCalendar] components:(NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay) fromDate:startDate];
@@ -797,9 +797,9 @@
 }
 
 /// 获取月
-+ (NSInteger)tfy_month_str:(NSString *)dateStr {
++ (NSInteger)tfy_month_str:(NSString *)dateStr Format:(NSString *)Format{
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"yyyy-MM-dd"];
+    [dateFormatter setDateFormat:Format];
     [dateFormatter setLocale:[NSLocale currentLocale]];
     NSDate *startDate = [dateFormatter dateFromString:dateStr];
     NSDateComponents *components = [[NSCalendar currentCalendar] components:(NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay) fromDate:startDate];
@@ -835,9 +835,9 @@
 }
 
 /// 获取日
-+ (NSInteger)tfy_day_str:(NSString *)dateStr {
++ (NSInteger)tfy_day_str:(NSString *)dateStr Format:(NSString *)Format{
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"yyyy-MM-dd"];
+    [dateFormatter setDateFormat:Format];
     [dateFormatter setLocale:[NSLocale currentLocale]];
     NSDate *startDate = [dateFormatter dateFromString:dateStr];
     NSDateComponents *components = [[NSCalendar currentCalendar] components:(NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay) fromDate:startDate];
@@ -855,7 +855,7 @@
 + (NSString *)tfy_currentDay {
     NSDateFormatter *formater = [[ NSDateFormatter alloc] init];
     NSDate *date = [NSDate date];
-    [formater setDateFormat:@"yyyy-MM-dd"];
+    [formater setDateFormat:@"yyyy-MM-dd HH:mm"];
     NSString * time = [formater stringFromDate:date];
     return time;
 }
@@ -1002,7 +1002,7 @@
 + (NSString *)tfy_getDayAfterDay:(NSInteger)day {
     NSTimeInterval time = [NSDate date].timeIntervalSince1970 + 24 * 3600 * day;
     NSString *date = [NSDate tfy_timeStringWithInterval:time];
-    NSInteger dayNum = [self tfy_day_str:date];
+    NSInteger dayNum = [self tfy_day_str:date Format:NSDate.tfy_ymdFormat];
     NSString *dayStr = [NSString stringWithFormat:@"%ld",(long)dayNum];
     return dayStr;
 }
@@ -1021,4 +1021,100 @@
     NSString *dateStr = [formatter stringFromDate:newdate];
     return dateStr;
 }
+
+//时间转时间戳的方法:
++ (NSInteger)tfy_timeSwitchTimestamp:(NSString *)formatTime andFormatter:(NSString *)format {
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateStyle:NSDateFormatterMediumStyle];
+    [formatter setTimeStyle:NSDateFormatterShortStyle];
+    [formatter setDateFormat:format]; //(@"YYYY-MM-dd HH:mm:ss") ----------设置你想要的格式,hh与HH的区别:分别表示12小时制,24小时制
+    NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"Asia/Beijing"];
+    [formatter setTimeZone:timeZone];
+    NSDate* date = [formatter dateFromString:formatTime]; //------------将字符串按formatter转成nsdate
+    //时间转时间戳的方法:
+    NSInteger timeSp = [[NSNumber numberWithDouble:[date timeIntervalSince1970]] integerValue];
+    return timeSp;
+}
+///时间戳转时间
++ (NSString *)tfy_timestampSwitchTime:(NSInteger)timestamp andFormatter:(NSString *)format {
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateStyle:NSDateFormatterMediumStyle];
+    [formatter setTimeStyle:NSDateFormatterShortStyle];
+    [formatter setDateFormat:format];
+    NSTimeZone *timeZone = [NSTimeZone timeZoneWithName:@"Asia/Beijing"];
+    [formatter setTimeZone:timeZone];
+    NSDate *confromTimesp = [NSDate dateWithTimeIntervalSince1970:timestamp];
+    NSString *confromTimespStr = [formatter stringFromDate:confromTimesp];
+    return confromTimespStr;
+}
+///将字符串转成NSDate类型
++ (NSDate *)tfy_dateFromString:(NSString *)dateString {
+    NSDateFormatter *inputFormatter= [[NSDateFormatter alloc] init];
+    [inputFormatter setLocale:[[NSLocale alloc] initWithLocaleIdentifier:@"en_US"]];
+    [inputFormatter setDateFormat:@"yyyy-MM-dd"];
+    NSDate *inputDate = [inputFormatter dateFromString:dateString];
+    //inputDate或出现相差八小时问题，下面是解决相差八小时
+    NSTimeZone *zone = [NSTimeZone systemTimeZone];
+    NSInteger interval = [zone secondsFromGMTForDate: inputDate];
+    NSDate *localeDate = [inputDate dateByAddingTimeInterval:interval];
+    return localeDate;
+}
+
++ (NSInteger)tfy_getNowTimestampFormatter:(NSString *)format {
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateStyle:NSDateFormatterMediumStyle];
+    [formatter setTimeStyle:NSDateFormatterShortStyle];
+    [formatter setDateFormat:format];
+    //设置时区,这个对于时间的处理有时很重要
+    NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"Asia/Beijing"];
+    [formatter setTimeZone:timeZone];
+    NSDate *datenow = [NSDate date];//现在时间
+    //时间转时间戳的方法:
+    NSInteger timeSp = [[NSNumber numberWithDouble:[datenow timeIntervalSince1970]] integerValue];
+    return timeSp;
+}
+
+/// 根据出生日期返回年龄的方法
++ (int)dateToOld:(NSDate *)bornDate {
+    //获得当前系统时间
+    NSDate *currentDate = [NSDate date];
+    //获得当前系统时间与出生日期之间的时间间隔
+    NSTimeInterval time = [currentDate timeIntervalSinceDate:bornDate];
+    //时间间隔以秒作为单位,求年的话除以60*60*24*356
+    int age = ((int)time)/(3600*24*365);
+    return age;
+}
+
+/// 根据出生日期返回详细的年龄(精确到天)
++ (NSString *)dateToDetailOld:(NSDate *)bornDate {
+    //获得当前系统时间
+    NSDate *currentDate = [NSDate date];
+    //创建日历(格里高利历)
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    //设置component的组成部分
+    NSUInteger unitFlags = NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond ;
+    //按照组成部分格式计算出生日期与现在时间的时间间隔
+    NSDateComponents *date = [calendar components:unitFlags fromDate:bornDate toDate:currentDate options:0];
+
+    //判断年龄大小,以确定返回格式
+    if( [date year] > 0)
+    {
+        return [NSString stringWithFormat:(@"%ld岁%ld月%ld天"),(long)[date year],(long)[date month],(long)[date day]];
+        
+    }
+    else if([date month] >0)
+    {
+        return [NSString stringWithFormat:(@"%ld月%ld天"),(long)[date month],(long)[date day]];
+        
+    }
+    else if([date day]>0)
+    {
+        return [NSString stringWithFormat:(@"%ld天"),(long)[date day]];
+        
+    }
+    else {
+        return @"0天";
+    }
+}
+
 @end

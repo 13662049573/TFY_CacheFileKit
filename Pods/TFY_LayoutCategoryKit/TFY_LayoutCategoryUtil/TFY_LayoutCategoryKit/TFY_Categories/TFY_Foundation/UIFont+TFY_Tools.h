@@ -27,6 +27,8 @@ typedef NS_ENUM(NSInteger, fontType) {
 
 @interface UIFont (TFY_Tools)
 
++ (UIFont *)tfy_systemScaleFontOfSize:(CGFloat)fontSize weight:(UIFontWeight)weight;
+
 + (UIFont *)tfy_fontScaleWithName:(NSString *)fontName fontSize:(CGFloat)fontSize;
 
 + (UIFont *)tfy_fontWithName:(NSString *)fontName fontSize:(CGFloat)fontSize;
@@ -52,6 +54,7 @@ typedef NS_ENUM(NSInteger, fontType) {
 + (UIFont *)tfy_STHeitiSCMedium:(CGFloat)size;
 
 + (UIFont *)tfy_LatoBoldAndSize:(CGFloat)size;
+
 @end
 
 NS_ASSUME_NONNULL_END

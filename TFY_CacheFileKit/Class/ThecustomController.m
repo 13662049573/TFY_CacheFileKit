@@ -54,6 +54,6 @@
 }
 
 - (void)browseClick {
-    [[TFY_OpenFileTool sharedOpenfileTool] openFileWithFilePath:self.url andVC:self andNavTitleName:@"文件名称" Document:TFY_DocumentOpenInMenu];
+    [[TFY_DocumentPicker sharedOpen] openFileWithFilePath:self.url andNavTitleName:@"文件名称" Document:TFY_DocumentOpenInMenu];
 }
 @end

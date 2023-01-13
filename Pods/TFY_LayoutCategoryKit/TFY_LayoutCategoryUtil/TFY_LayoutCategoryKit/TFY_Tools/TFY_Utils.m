@@ -9,12 +9,14 @@
 #import "TFY_Utils.h"
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
-
+#import "UIView+Toast.h"
+#import "TFY_Scene.h"
 #pragma 获取网络系统库头文件
 #import <SystemConfiguration/CaptiveNetwork.h>
 #import <SystemConfiguration/SystemConfiguration.h>
 #import <CoreTelephony/CTCarrier.h>
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
+#import <CoreText/CoreText.h>
 #pragma 手机授权需求系统库头文件
 #import <Photos/Photos.h>
 #pragma 各种方法需要的系统头文件
@@ -164,26 +166,16 @@ const char* jailbreak_tool_pathes[] = {
 
 - (NetworkStatus)networkStatusForFlags:(SCNetworkReachabilityFlags)flags{
     PrintReachabilityFlags(flags, "networkStatusForFlags");
-    if ((flags & kSCNetworkReachabilityFlagsReachable) == 0)
-    {
-        return NotReachable;
-    }
+    if ((flags & kSCNetworkReachabilityFlagsReachable) == 0){return NotReachable;}
     NetworkStatus returnValue = NotReachable;
-    
-    if ((flags & kSCNetworkReachabilityFlagsConnectionRequired) == 0)
-    {
-        returnValue = ReachableViaWiFi;
-    }
+    if ((flags & kSCNetworkReachabilityFlagsConnectionRequired) == 0) {returnValue = ReachableViaWiFi;}
     if ((((flags & kSCNetworkReachabilityFlagsConnectionOnDemand ) != 0) ||
-         (flags & kSCNetworkReachabilityFlagsConnectionOnTraffic) != 0))
-    {
-        
-        if ((flags & kSCNetworkReachabilityFlagsInterventionRequired) == 0)
-        {
+         (flags & kSCNetworkReachabilityFlagsConnectionOnTraffic) != 0)) {
+        if ((flags & kSCNetworkReachabilityFlagsInterventionRequired) == 0) {
             returnValue = ReachableViaWiFi;
         }
     }
-    if ((flags & kSCNetworkReachabilityFlagsIsWWAN) == kSCNetworkReachabilityFlagsIsWWAN){
+    if ((flags & kSCNetworkReachabilityFlagsIsWWAN) == kSCNetworkReachabilityFlagsIsWWAN) {
         returnValue = ReachableViaWWAN;
     }
     return returnValue;
@@ -236,11 +228,13 @@ const char* jailbreak_tool_pathes[] = {
 //针对蜂窝网络判断是3G或者4G
 +(NSString *)getNetType{
     __block NSString *netconnType = nil;
-    NSArray *typeStrings2G = @[CTRadioAccessTechnologyEdge,
+    NSArray *typeStrings2G = @[
+            CTRadioAccessTechnologyEdge,
             CTRadioAccessTechnologyGPRS,
             CTRadioAccessTechnologyCDMA1x];
       
-     NSArray *typeStrings3G = @[CTRadioAccessTechnologyHSDPA,
+     NSArray *typeStrings3G = @[
+            CTRadioAccessTechnologyHSDPA,
             CTRadioAccessTechnologyWCDMA,
             CTRadioAccessTechnologyHSUPA,
             CTRadioAccessTechnologyCDMAEVDORev0,
@@ -248,30 +242,29 @@ const char* jailbreak_tool_pathes[] = {
             CTRadioAccessTechnologyCDMAEVDORevB,
             CTRadioAccessTechnologyeHRPD];
       
-     NSArray *typeStrings4G = @[CTRadioAccessTechnologyLTE];
-    
-    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0) {
-        CTTelephonyNetworkInfo *teleInfo= [[CTTelephonyNetworkInfo alloc] init];
-        if (@available(iOS 12.0, *)) {
-            NSDictionary<NSString *, NSString *> *currentStatus = teleInfo.serviceCurrentRadioAccessTechnology;
-            if (currentStatus.allKeys.count==0) {
+    NSArray *typeStrings4G = @[CTRadioAccessTechnologyLTE];
+    NSArray *typeStrings5G;
+    if (@available(iOS 14.1, *)) {
+        typeStrings5G = @[CTRadioAccessTechnologyNRNSA,
+                          CTRadioAccessTechnologyNR];
+    }
+    CTTelephonyNetworkInfo *teleInfo= [[CTTelephonyNetworkInfo alloc] init];
+    if (@available(iOS 12.0, *)) {
+        NSDictionary<NSString *, NSString *> *currentStatus = teleInfo.serviceCurrentRadioAccessTechnology;
+        if (currentStatus.allKeys.count==0) {netconnType = @"未知";}
+        [currentStatus enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
+            if ([typeStrings4G containsObject:obj]) {
+                netconnType = @"4G";
+            } else if ([typeStrings3G containsObject:obj]) {
+                netconnType = @"3G";
+            } else if ([typeStrings2G containsObject:obj]) {
+                netconnType = @"2G";
+            } else if ([typeStrings5G containsObject:obj]) {
+                netconnType = @"5G";
+            } else {
                 netconnType = @"未知";
             }
-            [currentStatus enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
-                if ([typeStrings4G containsObject:obj]) {
-                    netconnType = @"4G";
-                } else if ([typeStrings3G containsObject:obj]) {
-                    netconnType = @"3G";
-                } else if ([typeStrings2G containsObject:obj]) {
-                    netconnType = @"2G";
-                } else {
-                    netconnType = @"未知";
-                }
-            }];
-        }
-    }
-    else {
-       netconnType = @"未知";
+        }];
     }
     return netconnType;
 }
@@ -532,46 +525,6 @@ const char* jailbreak_tool_pathes[] = {
 }
 
 #pragma mark------------------------------------------国际化设置---------------------------------------
-
-//formart时间戳格式("yyyy-MM-dd HH-mm-ss")
-+(NSString *)dateStringWithDate:(NSDate *)date formart:(NSString *)formart
-{
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:formart];
-    NSString *dataStr = [dateFormatter stringFromDate:date];
-    return dataStr;
-}
-/**
- *  //时间戳转化为NSDate formart时间戳格式("yyyy-MM-dd HH-mm-ss")
- */
-+(NSDate *)dateWithNSString:(NSString*)string formart:(NSString *)formart{
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:formart];
-    NSDate *date = [dateFormatter dateFromString:string];
-    return date;
-}
-/**
- *  根据日期计算N个月前的日期
- */
-+(NSDate *)dateOfPreviousMonth:(NSInteger)previousMonthCount WithDate:(NSDate *)fromDate{
-    NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
-    
-    NSDateComponents *comps = nil;
-    
-    comps = [calendar components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay fromDate:fromDate];
-    
-    NSDateComponents *adcomps = [[NSDateComponents alloc] init];
-    
-    [adcomps setYear:0];
-    
-    [adcomps setMonth:-previousMonthCount];
-    
-    [adcomps setDay:0];
-    
-    NSDate *resultDate_ = [calendar dateByAddingComponents:adcomps toDate:fromDate options:0];
-    
-    return resultDate_;
-}
 /**
  *  获取长度为stringLength的随机字符串, 随机数字字符混合类型字符串函数
  */
@@ -667,43 +620,6 @@ const char* jailbreak_tool_pathes[] = {
     }
     return result;
 }
-/**
- * 直接调用这个方法即可签名成功
- */
-+ (NSString *)serializeURL:(NSString *)baseURL Token:(NSString *)token params:(NSDictionary *)params
-{
-    
-    NSURL* parsedURL = [NSURL URLWithString:[baseURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLFragmentAllowedCharacterSet]]];
-    NSMutableDictionary *paramsDic = [NSMutableDictionary dictionaryWithDictionary:[self parseQueryString:[parsedURL query]]];
-    if (params)
-    {
-        [paramsDic setValuesForKeysWithDictionary:params];
-    }
-    NSMutableString *paramsString = [NSMutableString stringWithFormat:@""];//字符串
-    NSArray *sortedKeys = [[paramsDic allKeys] sortedArrayUsingSelector: @selector(compare:)];//排序
-    
-    NSMutableArray *parametersArray = [[NSMutableArray alloc] init];
-    for (NSString *key in sortedKeys)
-    {
-        id value = [params objectForKey :key];
-        
-        if ([value isKindOfClass :[NSString class]])
-        {
-            [parametersArray addObject :[NSString stringWithFormat:@"%@=%@",key,value]];
-            
-        }
-    }
-    NSString *str=[parametersArray componentsJoinedByString:@"&"];
-    
-    [paramsString appendString:str];
-    
-    NSString *md5=[NSString stringWithFormat:@"%@%@",str,token];//Token公司秘钥
-    NSString * mdfiveString = [self md5HexDigest:md5];//MD5加密
-    
-    [paramsString appendFormat:@"&sign=%@", mdfiveString];//加密后即获得签名串
-    
-    return [NSString stringWithFormat:@"%@://%@%@?%@", [parsedURL scheme], [parsedURL host], [parsedURL path], [paramsString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLFragmentAllowedCharacterSet]]];
-}
 
 +(NSDictionary *)parseQueryString:(NSString *)query
 {
@@ -737,38 +653,6 @@ const char* jailbreak_tool_pathes[] = {
     
     return mdfiveString;
 }
-
-+(NSString *)HTTPBodyWithParameters:(NSDictionary *)parameters Token:(NSString *)token{
-    
-    NSMutableArray *parametersArray = [[NSMutableArray alloc] init];
-    
-    NSArray *sortedKeys = [[parameters allKeys] sortedArrayUsingSelector: @selector(compare:)];//排序
-    
-    for (NSString *key in sortedKeys)
-    {
-        
-        [parametersArray addObject :[NSString stringWithFormat:@"%@=%@",key,[parameters objectForKey:key]]];
-        
-    }
-    NSString *md5=[NSString stringWithFormat:@"%@%@",[parametersArray componentsJoinedByString : @"&"],token];
-    return  [self md5HexDigest:md5];
-}
-/**
- *  返回一个请求头
- */
-+(NSString *)parmereaddWithDict:(NSDictionary *)dict Token:(NSString *)token{
-    NSMutableArray *parametersArray = [[NSMutableArray alloc] init];
-    
-    NSArray *sortedKeys = [[dict allKeys] sortedArrayUsingSelector: @selector(compare:)];//排序
-    
-    for (NSString *key in sortedKeys)
-    {
-        [parametersArray addObject :[NSString stringWithFormat:@"%@=%@",key,[dict objectForKey:key]]];
-    }
-    NSString *parme=[NSString stringWithFormat:@"%@&sign=%@",[parametersArray componentsJoinedByString : @"&"],[self HTTPBodyWithParameters:dict Token:token]];
-    
-    return  parme;
-}
 /**
  *  把多个json字符串转为一个json字符串
  */
@@ -783,177 +667,7 @@ const char* jailbreak_tool_pathes[] = {
     jsonStr = [jsonStr stringByAppendingString:@"]"];
     return jsonStr;
 }
-/**
- *   获取当前时间
- */
-+(NSString *)audioTime{
-    NSString* date;
-    NSDateFormatter * formatter = [[NSDateFormatter alloc ] init];
-    [formatter setDateFormat:@"YYYY-MM-dd HH:mm:ss"];
-    date = [formatter stringFromDate:[NSDate date]];
-    NSString *timeNow = [[NSString alloc] initWithFormat:@"%@", date];
-    return timeNow;
-}
-/**
- *   字符串时间——时间戳
- */
-+(NSString *)cTimestampFromString:(NSString *)theTime{
-    //装换为时间戳
-    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-    [formatter setDateStyle:NSDateFormatterMediumStyle];
-    [formatter setTimeStyle:NSDateFormatterShortStyle];
-    formatter.locale=[NSLocale localeWithLocaleIdentifier:@"en_us"];
-    [formatter setDateFormat:@"YYYY-MM-dd HH:mm:ss"];
-    NSTimeZone* timeZone = [NSTimeZone timeZoneWithName:@"Asia/Beijing"];
-    [formatter setTimeZone:timeZone];
-    NSDate* dateTodo = [formatter dateFromString:theTime];
-    NSString *timeSp = [NSString stringWithFormat:@"%ld", (long)[dateTodo timeIntervalSince1970]];
-    return timeSp;
-}
-/**
- *   时间戳——字符串时间
- */
-+(NSString *)cStringFromTimestamp:(NSString *)timestamp{
-    //时间戳转时间的方法
-    NSDate *timeData = [NSDate dateWithTimeIntervalSince1970:[timestamp intValue]];
-    NSDateFormatter *dateFormatter =[[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"HH:mm:ss"];
-    NSString *strTime = [dateFormatter stringFromDate:timeData];
-    return strTime;
-}
-/**
- *  两个时间之差
- */
-+(NSString *)intervalFromLastDate:(NSString *)dateString1 toTheDate:(NSString *)dateString2{
-    NSArray *timeArray1=[dateString1 componentsSeparatedByString:@"."];
-    dateString1=[timeArray1 objectAtIndex:0];
-    
-    NSArray *timeArray2=[dateString2 componentsSeparatedByString:@"."];
-    dateString2=[timeArray2 objectAtIndex:0];
-    
-    NSDateFormatter *date=[[NSDateFormatter alloc] init];
-    [date setDateFormat:@"YYYY-MM-dd HH:mm:ss"];
-    
-    NSDate *d1=[date dateFromString:dateString1];
-    
-    NSTimeInterval late1=[d1 timeIntervalSince1970]*1;
-    
-    NSDate *d2=[date dateFromString:dateString2];
-    
-    NSTimeInterval late2=[d2 timeIntervalSince1970]*1;
-    
-    NSTimeInterval cha=late2-late1;
-    NSString *timeString=@"";
-    NSString *house=@"";
-    NSString *min=@"";
-    NSString *sen=@"";
-    sen = [NSString stringWithFormat:@"%d", (int)cha%60];
-    sen=[NSString stringWithFormat:@"%@", sen];
-    min = [NSString stringWithFormat:@"%d", (int)cha/60%60];
-    min=[NSString stringWithFormat:@"%@", min];
-    house = [NSString stringWithFormat:@"%d", (int)cha/3600];
-    house=[NSString stringWithFormat:@"%@", house];
-    timeString=[NSString stringWithFormat:@"%@时%@分%@秒",house,min,sen];
-    return timeString;
-}
-/**
- *   一个时间距现在的时间
- */
-+(NSString *)intervalSinceNow:(NSString *)theDate{
-    NSArray *timeArray=[theDate componentsSeparatedByString:@"."];
-    theDate=[timeArray objectAtIndex:0];
-    
-    NSDateFormatter *date=[[NSDateFormatter alloc] init];
-    [date setDateFormat:@"YYYY-MM-dd HH:mm:ss"];
-    NSDate * d= [date dateFromString:theDate];
-    
-    NSTimeInterval late=[d timeIntervalSince1970]*1;
-    
-    NSDate* dat = [NSDate date];
-    NSTimeInterval now=[dat timeIntervalSince1970]*1;
-    NSString *timeString=@"";
-    
-    NSTimeInterval cha=late-now;
-    
-    if (cha/3600<1) {
-        timeString = [NSString stringWithFormat:@"%f", cha/60];
-        timeString = [timeString substringToIndex:timeString.length-7];
-        timeString=[NSString stringWithFormat:@"剩余%@分", timeString];
-        
-    }
-    if (cha/3600>1&&cha/86400<1) {
-        timeString = [NSString stringWithFormat:@"%f", cha/3600];
-        timeString = [timeString substringToIndex:timeString.length-7];
-        timeString=[NSString stringWithFormat:@"剩余%@小时", timeString];
-    }
-    if (cha/86400>1)
-    {
-        timeString = [NSString stringWithFormat:@"%f", cha/86400];
-        timeString = [timeString substringToIndex:timeString.length-7];
-        timeString=[NSString stringWithFormat:@"剩余%@天", timeString];
-        
-    }
-    return timeString;
-}
-/**
- *  将字符串转化为中文时间
- */
-+(NSString *)Formatter:(NSString *)time{
-    NSString* string = time;
-    NSDateFormatter *inputFormatter = [[NSDateFormatter alloc] init];
-    [inputFormatter setLocale:[[NSLocale alloc] initWithLocaleIdentifier:@"en_US"]];
-    [inputFormatter setDateFormat:@"yyyyMM"];
-    NSDate* inputDate = [inputFormatter dateFromString:string];
-    NSDateFormatter *outputFormatter = [[NSDateFormatter alloc] init];
-    [outputFormatter setLocale:[NSLocale currentLocale]];
-    [outputFormatter setDateFormat:@"yyyy年MM月"];
-    NSString *str = [outputFormatter stringFromDate:inputDate];
-    NSString *index=[str substringWithRange:NSMakeRange(5,2)];
-    NSString *sssss= [self mone:[index integerValue]];
-    // NSString *string5= [self translation:index];
-    return sssss;
-}
-+(NSString *)mone:(NSInteger )mones{
-    switch (mones) {
-        case 1:
-            return @"一月";
-            break;
-        case 2:
-            return @"二月";
-            break;
-        case 3:
-            return @"三月";
-            break;
-        case 4:
-            return @"四月";
-            break;
-        case 5:
-            return @"五月";
-            break;
-        case 6:
-            return @"六月";
-            break;
-        case 7:
-            return @"七月";
-            break;
-        case 8:
-            return @"八月";
-            break;
-        case 9:
-            return @"九月";
-            break;
-        case 10:
-            return @"十月";
-            break;
-        case 11:
-            return @"十一月";
-            break;
-        case 12:
-            return @"十二月";
-            break;
-    }
-    return [NSString stringWithFormat:@"%ld",(long)mones];
-}
+
 /**
  *  去掉手机号码上的+号和+86
  */
@@ -1012,16 +726,7 @@ const char* jailbreak_tool_pathes[] = {
 +(NSString *)localizedModel{
     return [[UIDevice currentDevice] localizedModel];
 }
-/**
- *  获取当前年份
- */
-+(NSString *)setDateFormat{
-    NSDate *  senddate=[NSDate date];
-    NSDateFormatter  *dateformatter=[[NSDateFormatter alloc] init];
-    [dateformatter setDateFormat:@"yyyy-MM-dd"];
-    NSString *  locationString=[dateformatter stringFromDate:senddate];
-    return locationString;
-}
+
 /**
  *  当前使用的语言
  */
@@ -1138,16 +843,7 @@ const char* jailbreak_tool_pathes[] = {
     
     return  parme;
 }
-/**
- *  秒数转换成时间,时，分，秒 转换成时分秒
- */
-+(NSString *)timeFormatted:(int)totalSeconds{
-    int seconds = totalSeconds % 60;
-    int minutes = (totalSeconds / 60) % 60;
-    int hours = totalSeconds / 3600;
-    int day = hours/24;
-    return [NSString stringWithFormat:@"%d天 %d时 %d分 %d秒",day,hours,minutes,seconds];
-}
+
 /**
  *  视频显示时间
  */
@@ -1165,73 +861,21 @@ const char* jailbreak_tool_pathes[] = {
     return timeStr;
 }
 /**
- *   将时间数据（毫秒）转换为天和小时
- */
-+(NSString*)getOvertime:(NSString*)mStr{
-    long msec = (long)[mStr longLongValue];
-    
-    if (msec <= 0){
-        return @"";
-    }
-    
-    NSInteger d = msec/1000/60/60/24;
-    NSInteger h = msec/1000/60/60%24;
-    //NSInteger  m = msec/1000/60%60;
-    //NSInteger  s = msec/1000%60;
-    
-    NSString *_tStr = @"";
-    NSString *_dStr = @"";
-    NSString *_hStr = @"";
-    NSString *_hTimeType = @"defaultColor";
-    
-    if (d > 0)
-    {
-        _dStr = [NSString stringWithFormat:@"%ld天",(long)d];
-    }
-    
-    if (h > 0)
-    {
-        _hStr = [NSString stringWithFormat:@"%ld小时",(long)h];
-    }
-    
-    //小于2小时 高亮显示
-    if (h > 0 && h < 2)
-    {
-        _hTimeType = @"hightColor";
-    }
-    
-    _tStr = [NSString stringWithFormat:@"%@%@后到期-%@",_dStr,_hStr,_hTimeType];
-    
-    return _tStr;
-}
-/**
  *   获取图片格式
  */
 +(NSString *)typeForImageData:(NSData *)data{
     uint8_t c;
-    
     [data getBytes:&c length:1];
-    
     switch (c) {
-            
         case 0xFF:
-            
             return @"image/jpg";
-            
         case 0x89:
-            
             return @"image/png";
-            
         case 0x47:
-            
             return @"image/gif";
-            
         case 0x49:
-            
         case 0x4D:
-            
             return @"image/tiff";
-            
     }
     
     return nil;
@@ -1445,108 +1089,6 @@ const char* jailbreak_tool_pathes[] = {
     } else
         return [NSString stringWithFormat:@"%lld B", size];
 }
-//获得设备型号
-+ (NSString *)getCurrentDeviceModel
-{
-    int mib[2];
-    size_t len;
-    char *machine;
-    
-    mib[0] = CTL_HW;
-    mib[1] = HW_MACHINE;
-    sysctl(mib, 2, NULL, &len, NULL, 0);
-    machine = malloc(len);
-    sysctl(mib, 2, machine, &len, NULL, 0);
-    
-    NSString *platform = [NSString stringWithCString:machine encoding:NSASCIIStringEncoding];
-    free(machine);
-    
-    // iPhone
-    if ([platform isEqualToString:@"iPhone1,1"]) return @"iPhone 2G";
-    if ([platform isEqualToString:@"iPhone1,2"]) return @"iPhone 3G";
-    if ([platform isEqualToString:@"iPhone2,1"]) return @"iPhone 3GS";
-    if ([platform isEqualToString:@"iPhone3,1"]) return @"iPhone 4";
-    if ([platform isEqualToString:@"iPhone3,2"]) return @"iPhone 4";
-    if ([platform isEqualToString:@"iPhone3,3"]) return @"iPhone 4";
-    if ([platform isEqualToString:@"iPhone4,1"]) return @"iPhone 4S";
-    if ([platform isEqualToString:@"iPhone5,1"]) return @"iPhone 5";
-    if ([platform isEqualToString:@"iPhone5,2"]) return @"iPhone 5";
-    if ([platform isEqualToString:@"iPhone5,3"]) return @"iPhone 5c";
-    if ([platform isEqualToString:@"iPhone5,4"]) return @"iPhone 5c";
-    if ([platform isEqualToString:@"iPhone6,1"]) return @"iPhone 5s";
-    if ([platform isEqualToString:@"iPhone6,2"]) return @"iPhone 5s";
-    if ([platform isEqualToString:@"iPhone7,2"]) return @"iPhone 6";
-    if ([platform isEqualToString:@"iPhone7,1"]) return @"iPhone 6 Plus";
-    if ([platform isEqualToString:@"iPhone8,1"]) return @"iPhone 6s";
-    if ([platform isEqualToString:@"iPhone8,2"]) return @"iPhone 6s Plus";
-    if ([platform isEqualToString:@"iPhone8,3"]) return @"iPhone SE";
-    if ([platform isEqualToString:@"iPhone8,4"]) return @"iPhone SE";
-    if ([platform isEqualToString:@"iPhone9,1"]) return @"iPhone 7";
-    if ([platform isEqualToString:@"iPhone9,2"]) return @"iPhone 7 Plus";
-    if ([platform isEqualToString:@"iPhone10,1"]) return @"iPhone 8";
-    if ([platform isEqualToString:@"iPhone10,4"]) return @"iPhone 8";
-    if ([platform isEqualToString:@"iPhone10,2"]) return @"iPhone 8 Plus";
-    if ([platform isEqualToString:@"iPhone10,5"]) return @"iPhone 8 Plus";
-    if ([platform isEqualToString:@"iPhone10,3"]) return @"iPhone X";
-    if ([platform isEqualToString:@"iPhone10,6"]) return @"iPhone X";
-    if ([platform isEqualToString:@"iPhone11,2"]) return@"iPhone XS";
-    if ([platform isEqualToString:@"iPhone11,4"] || [platform isEqualToString:@"iPhone11,6"]) return@"iPhone XS Max";
-    if ([platform isEqualToString:@"iPhone11,8"]) return@"iPhone XR";
-    
-    //iPod Touch
-    if ([platform isEqualToString:@"iPod1,1"])   return @"iPod Touch";
-    if ([platform isEqualToString:@"iPod2,1"])   return @"iPod Touch 2G";
-    if ([platform isEqualToString:@"iPod3,1"])   return @"iPod Touch 3G";
-    if ([platform isEqualToString:@"iPod4,1"])   return @"iPod Touch 4G";
-    if ([platform isEqualToString:@"iPod5,1"])   return @"iPod Touch 5G";
-    if ([platform isEqualToString:@"iPod7,1"])   return @"iPod Touch 6G";
-    
-    //iPad
-    if ([platform isEqualToString:@"iPad1,1"])   return @"iPad";
-    if ([platform isEqualToString:@"iPad2,1"])   return @"iPad 2";
-    if ([platform isEqualToString:@"iPad2,2"])   return @"iPad 2";
-    if ([platform isEqualToString:@"iPad2,3"])   return @"iPad 2";
-    if ([platform isEqualToString:@"iPad2,4"])   return @"iPad 2";
-    if ([platform isEqualToString:@"iPad3,1"])   return @"iPad 3";
-    if ([platform isEqualToString:@"iPad3,2"])   return @"iPad 3";
-    if ([platform isEqualToString:@"iPad3,3"])   return @"iPad 3";
-    if ([platform isEqualToString:@"iPad3,4"])   return @"iPad 4";
-    if ([platform isEqualToString:@"iPad3,5"])   return @"iPad 4";
-    if ([platform isEqualToString:@"iPad3,6"])   return @"iPad 4";
-    if ([platform isEqualToString:@"iPad6,11"] || [platform isEqualToString:@"iPad6,12"]) return @"iPad 5";
-    if ([platform isEqualToString:@"iPad7,5"] || [platform isEqualToString:@"iPad7,6"]) return @"iPad 6";
-    
-    //iPad Pro
-    if ([platform isEqualToString:@"iPad6,3"] || [platform isEqualToString:@"iPad6,4"]) return @"iPad Pro 9.7 inch";
-    if ([platform isEqualToString:@"iPad6,7"] || [platform isEqualToString:@"iPad6,8"]) return @"iPad Pro 12.9 inch";
-    if ([platform isEqualToString:@"iPad7,1"] || [platform isEqualToString:@"iPad7,2"]) return @"iPad Pro 12.9 inch 2";
-    if ([platform isEqualToString:@"iPad7,3"] || [platform isEqualToString:@"iPad7,4"]) return @"iPad Pro 10.5 inch";
-    
-    //iPad Air
-    if ([platform isEqualToString:@"iPad4,1"])   return @"iPad Air";
-    if ([platform isEqualToString:@"iPad4,2"])   return @"iPad Air";
-    if ([platform isEqualToString:@"iPad4,3"])   return @"iPad Air";
-    if ([platform isEqualToString:@"iPad5,3"])   return @"iPad Air2";
-    if ([platform isEqualToString:@"iPad5,4"])   return @"iPad Air2";
-    
-    //iPad mini
-    if ([platform isEqualToString:@"iPad2,5"])   return @"iPad mini 1G";
-    if ([platform isEqualToString:@"iPad2,6"])   return @"iPad mini 1G";
-    if ([platform isEqualToString:@"iPad2,7"])   return @"iPad mini 1G";
-    if ([platform isEqualToString:@"iPad4,4"])   return @"iPad mini 2";
-    if ([platform isEqualToString:@"iPad4,5"])   return @"iPad mini 2";
-    if ([platform isEqualToString:@"iPad4,6"])   return @"iPad mini 2";
-    if ([platform isEqualToString:@"iPad4,7"])   return @"iPad mini 3";
-    if ([platform isEqualToString:@"iPad4,8"])   return @"iPad mini 3";
-    if ([platform isEqualToString:@"iPad4,9"])   return @"iPad mini 3";
-    if ([platform isEqualToString:@"iPad5,1"])   return @"iPad mini 4";
-    if ([platform isEqualToString:@"iPad5,2"])   return @"iPad mini 4";
-    
-    if ([platform isEqualToString:@"i386"])      return @"iPhone Simulator";
-    if ([platform isEqualToString:@"x86_64"])    return @"iPhone Simulator";
-    
-    return platform;
-}
 /**
  *  获取缓存数据单位 M
  */
@@ -1601,46 +1143,6 @@ const char* jailbreak_tool_pathes[] = {
             [[NSFileManager defaultManager ] removeItemAtPath :fileAbsolutePath error :&error];
         }
     }
-}
-/**
- *  打印成员变量列表
- */
-+ (void)runTimeConsoleMemberListWithClassName:(Class)className{
-    unsigned int outCount = 0;
-    Ivar *ivars = class_copyIvarList(className, &outCount);
-    for (unsigned int i = 0; i < outCount; i++) {
-        Ivar ivar = ivars[i];
-        const char *name = ivar_getName(ivar);
-        const char *type = ivar_getTypeEncoding(ivar);
-        NSLog(@"类型为 %s 的 %s ",type, name);
-    }
-    free(ivars);
-}
-/**
- *  打印属性列表
- */
-+ (void)runTimeConsolePropertyListWithClassName:(Class)className{
-    unsigned int outCount = 0;
-    objc_property_t * properties = class_copyPropertyList(className, &outCount);
-    for (unsigned int i = 0; i < outCount; i ++) {
-        objc_property_t property = properties[i];
-//        //属性名
-//        const char * name = property_getName(property);
-//        //属性描述
-//        const char * propertyAttr = property_getAttributes(property);
-        //属性的特性
-        unsigned int attrCount = 0;
-        objc_property_attribute_t * attrs = property_copyAttributeList(property, &attrCount);
-        for (unsigned int j = 0; j < attrCount; j ++) {
-            objc_property_attribute_t attr = attrs[j];
-            const char * name = attr.name;
-            const char * value = attr.value;
-            NSLog(@"属性的描述：%s 值：%s", name, value);
-        }
-        free(attrs);
-        NSLog(@"\n");
-    }
-    free(properties);
 }
 
 /**
@@ -1797,22 +1299,38 @@ const char* jailbreak_tool_pathes[] = {
     }
     return NO;
 }
+
 /**
  *  验证手机号
  */
 +(BOOL)mobilePhoneNumber:(NSString *)mobile{
     BOOL  mobilebool =[self isPureNumber:mobile];
     if (mobilebool==YES) {
-        NSString *patternMobile = @"^((13[0-9])|(15[^4,\\D])|(18[0,0-9])|(17[0-9]))\\d{8}$";
-        
         if ([self judgeIsEmptyWithString:mobile]) {
             return NO;
         } else {
-            return [self regular:patternMobile withString:mobile];
+            return [self valiMobile:mobile];
         }
-    }
-    else{
+    } else {
         return NO;
+    }
+}
+
++ (BOOL)valiMobile:(NSString *)mobile {
+    if (mobile.length != 11) {
+            return NO;
+        } else {
+            BOOL isMatch2 = [self isMobilePperators:mobile];// 移动号段正则表达式
+            
+            BOOL isMatch3 = [self isUnicomPperators:mobile];// 联通号段正则表达式
+            
+            BOOL isMatch4 = [self isTelecomPperators:mobile];// 电信号段正则表达式
+            
+        if (isMatch2 || isMatch3 || isMatch4) {
+            return YES;
+        } else {
+            return NO;
+        }
     }
 }
 /**
@@ -1826,6 +1344,7 @@ const char* jailbreak_tool_pathes[] = {
         return [self regular:patternFloatNumber withString:number];
     }
 }
+
 /**
  * 判断是不是小数，如1.2这样  符合则为YES，不符合则为NO
  */
@@ -2178,94 +1697,48 @@ const char* jailbreak_tool_pathes[] = {
  */
 + (BOOL)isMobilePperators:(NSString *)string{
     if(string.length != 11) {
-           
            return NO;
        }else {
-           
-           /**
-            * 移动号段正则表达式
-            */
-           NSString *CM_NUM = @"^((13[4-9])|(147)|(15[0-2,7-9])|(178)|(18[2-4,7-8]))\\d{8}|(1705)\\d{7}$";
-           
+           NSString *CM_NUM = @"(^134[0-8]\\d{7}$)|(^1(3[5-9]|4[7]|5[0-27-9]|6[5]|7[28]|8[2-478]|9[8])\\d{8}$)|(^170[356]\\d{7})";
            return [self isValidateByRegex:CM_NUM Object:string];
        }
 }
+
 /** 验证运营商:联通 */
 + (BOOL)isUnicomPperators:(NSString *)string {
-    
     if(string.length != 11) {
-        
         return NO;
     }else {
-        
-        /**
-         * 联通号段正则表达式
-         */
-        NSString *CU_NUM = @"^((13[0-2])|(145)|(15[5-6])|(176)|(18[5,6]))\\d{8}|(1709)\\d{7}$";
-        
+        NSString *CU_NUM = @"(^1(3[0-2]|4[5]|5[56]|6[67]|7[156]|8[56])\\d{8}$)|(^170[47-9]\\d{7}$)";
         return [self isValidateByRegex:CU_NUM Object:string];
     }
 }
 
 /** 验证运营商:电信 */
 + (BOOL)isTelecomPperators:(NSString *)string {
-    
     if(string.length != 11) {
-        
         return NO;
     }else {
-        
-        /**
-         * 电信号段正则表达式
-         */
-        NSString *CT_NUM = @"(^1(33|53|77|8[019])\\d{8}$)|(^1700\\d{7}$)";
-        
+        NSString *CT_NUM = @"(^1(3[3]|4[9]|5[3]|6[2]|7[37]|8[019]|9[1-9])\\d{8}$)|(^170[0-2]\\d{7}$)";
         return [self isValidateByRegex:CT_NUM Object:string];
     }
 }
+
+//判断运营商
+
++ (NSString *)getPhoneNumType:(NSString *)phoneNum {
+    return [self isMobilePperators:phoneNum]? @"中国移动": ([self isUnicomPperators:phoneNum]? @"中国联通":([self isTelecomPperators:phoneNum]? @"中国电信": @"未知"));
+
+}
+
 //验证正则表达式
 + (BOOL)isValidateByRegex:(NSString *)regex Object:(NSString *)object {
-    
     if(object.length <= 0) {
-        
         return NO;
     }else {
-        
         NSPredicate *pre = [NSPredicate predicateWithFormat:@"SELF MATCHES %@",regex];
         return [pre evaluateWithObject:object];
     }
-}
-+(BOOL)suibian:(NSArray  *)array{
-    NSMutableArray *tempArr = [NSMutableArray array];
-    NSMutableArray *tempArr2 = [NSMutableArray array];
-
-    for (int i = 1; i < array.count; i ++) {
-        if ([array[i] integerValue] > [array[i - 1] integerValue] ) {
-            
-            NSInteger max = [array[i] integerValue];
-            NSInteger min = [array[i - 1] integerValue];
-            if (max - min == 1) {
-                [tempArr addObject:@"yes"];
-            }
-        }
-    }
-    for (int i = 1; i < array.count; i ++) {
-        if ([array[i] integerValue] < [array[i - 1] integerValue]  ) {
-            
-            NSInteger max = [array[i - 1] integerValue];
-            NSInteger min = [array[i] integerValue];
-            if (max - min == 1) {
-                [tempArr2 addObject:@"yes"];
-            }
-        }
-    }
-    if (tempArr.count == 5 || tempArr2.count == 5) {
-        return YES;
-    }else{
-        
-        return NO;
-    }
-    
 }
 
 +(BOOL)hasSerialSubstrWithString:(NSString *)string{
@@ -2581,13 +2054,39 @@ const char* jailbreak_tool_pathes[] = {
     [ud setInteger:value forKey:key];
     [ud synchronize];
 }
+
+/**
+ *  存储当前CGFloat
+ */
++(void)saveFloatValueInUD:(CGFloat)value forKey:(NSString *)key {
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    [ud setFloat:value forKey:key];
+    [ud synchronize];
+}
+
+/**
+ *  存储当前double
+ */
++(void)saveDoubleValueInUD:(double)value forKey:(NSString *)key {
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    [ud setDouble:value forKey:key];
+    [ud synchronize];
+}
+
+/**
+ *  存储当前Double
+ */
++(void)saveUrlValueInUD:(NSURL*)value forKey:(NSString *)key {
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    [ud setURL:value forKey:key];
+    [ud synchronize];
+}
+
 /**
  *   保存模型id
  */
 +(void)saveValueInUD:(id)value forKey:(NSString *)key{
-    if(!value){
-        return;
-    }
+    if(!value){return;}
     NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
     [ud setObject:value forKey:key];
     [ud synchronize];
@@ -2620,6 +2119,31 @@ const char* jailbreak_tool_pathes[] = {
     NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
     return [ud integerForKey:key];
 }
+
+/**
+ *  获取保存的CGFloat
+ */
++ (CGFloat)getFloatValueInUDWithKey:(NSString *)key {
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    return [ud floatForKey:key];
+}
+
+/**
+ *  获取保存的double
+ */
++ (double)getdoubleValueInUDWithKey:(NSString *)key {
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    return [ud doubleForKey:key];
+}
+
+/**
+ *  获取保存的NSURL
+ */
++ (NSURL*)getURLValueInUDWithKey:(NSString *)key {
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    return [ud URLForKey:key];
+}
+
 /**
  *  获取保存的NSDictionary
  */
@@ -2659,12 +2183,10 @@ const char* jailbreak_tool_pathes[] = {
 /**
  *   归档
  */
-+ (void)keyedArchiverObject:(id)object ForKey:(NSString *)key ToFile:(NSString *)path{
-    NSMutableData *md=[NSMutableData data];
-    NSKeyedArchiver *arch=[[NSKeyedArchiver alloc]initForWritingWithMutableData:md];
-    [arch encodeObject:object forKey:key];
-    [arch finishEncoding];
-    [md writeToFile:path atomically:YES];
++ (void)keyedArchiverObject:(id)object ToFile:(NSString *)path{
+    NSError * error;
+    NSData * data = [NSKeyedArchiver archivedDataWithRootObject:object requiringSecureCoding:YES error:&error];
+    [data writeToFile:path atomically:YES];
 }
 static CGRect oldframe;
 /**
@@ -2693,6 +2215,7 @@ static CGRect oldframe;
         
     }];
 }
+
 +(void)hideImage:(UITapGestureRecognizer*)tap{
     UIView *backgroundView = tap.view;
     UIImageView *imageView = (UIImageView*)[tap.view viewWithTag:1];
@@ -2706,18 +2229,16 @@ static CGRect oldframe;
 /**
  *  反归档
  */
-+(NSArray *)keyedUnArchiverForKey:(NSString *)key FromFile:(NSString *)path{
++(id)keyedUnArchiverForKey:(id)object FromFile:(NSString *)path{
     NSError *error=nil;
-    NSData *data=[NSData dataWithContentsOfFile:path];
-    NSArray *arr;
-    if (@available(iOS 11.0, *)) {
-        NSKeyedUnarchiver *unArch=[[NSKeyedUnarchiver alloc] initForReadingFromData:data error:&error];
-        arr = [unArch decodeObjectForKey:key];
+    NSData * unData = [NSData dataWithContentsOfFile:path];
+    id unarch;
+    if (@available(iOS 14.0, *)) {
+        unarch = [NSKeyedUnarchiver unarchivedArrayOfObjectsOfClass:object fromData:unData error:&error];
     } else {
-        NSKeyedUnarchiver *unArch=[[NSKeyedUnarchiver alloc] initForReadingWithData:data];
-        arr = [unArch decodeObjectForKey:key];
+        unarch = [NSKeyedUnarchiver unarchivedObjectOfClass:object fromData:unData error:&error];
     }
-    return arr;
+    return unarch;
 }
 
 /**
@@ -2750,6 +2271,32 @@ static CGRect oldframe;
     return [arr copy];
 }
 
++ (NSArray *)getLinesArrayOfStringInrowsOfString:(NSString *)text withFont:(UIFont *)font withWidth:(CGFloat)width {
+    
+    CTFontRef myFont = CTFontCreateWithName((CFStringRef)([font fontName]), [font pointSize], NULL);
+    NSMutableAttributedString *attStr = [[NSMutableAttributedString alloc] initWithString:text];
+    [attStr addAttribute:(NSString *)kCTFontAttributeName value:(__bridge  id)myFont range:NSMakeRange(0, attStr.length)];
+    CFRelease(myFont);
+    CTFramesetterRef frameSetter = CTFramesetterCreateWithAttributedString(( CFAttributedStringRef)attStr);
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGPathAddRect(path, NULL, CGRectMake(0,0,width,MAXFLOAT));
+    CTFrameRef frame = CTFramesetterCreateFrame(frameSetter, CFRangeMake(0, 0), path, NULL);
+    NSArray *lines = ( NSArray *)CTFrameGetLines(frame);
+    NSMutableArray *linesArray = [[NSMutableArray alloc]init];
+    for (id line in lines) {
+        CTLineRef lineRef = (__bridge CTLineRef)line;
+        CFRange lineRange = CTLineGetStringRange(lineRef);
+        NSRange range = NSMakeRange(lineRange.location, lineRange.length);
+        NSString *lineString = [text substringWithRange:range];
+        CFAttributedStringSetAttribute((CFMutableAttributedStringRef)attStr, lineRange, kCTKernAttributeName, (CFTypeRef)([NSNumber numberWithFloat:0.0]));
+        CFAttributedStringSetAttribute((CFMutableAttributedStringRef)attStr, lineRange, kCTKernAttributeName, (CFTypeRef)([NSNumber numberWithInt:0.0]));
+        [linesArray addObject:lineString];
+    }
+    CGPathRelease(path);
+    CFRelease(frame);
+    CFRelease(frameSetter);
+    return (NSArray *)linesArray;
+}
 
 /**
  *  直接跳转到手机浏览器
@@ -2878,7 +2425,8 @@ static CGRect oldframe;
         createdAssetID = [PHAssetChangeRequest creationRequestForAssetFromImage:image].placeholderForCreatedAsset.localIdentifier;
     } error:&error];
 }
-+(void)saveImage:(UIImage *)image assetCollectionName:(NSString *)collectionName{
+
++(void)saveImage:(UIImage *)image assetCollectionName:(NSString *)collectionName completionHandler:(nullable void(^)(BOOL success, NSError *__nullable error))completionHandler {
     // 1. 获取当前App的相册授权状态
     PHAuthorizationStatus authorizationStatus = [PHPhotoLibrary authorizationStatus];
     
@@ -2886,7 +2434,7 @@ static CGRect oldframe;
     if (authorizationStatus == PHAuthorizationStatusAuthorized) {
         
         // 2.1 如果已经授权, 保存图片(调用步骤2的方法)
-        [self saveImage:image toCollectionWithName:collectionName];
+        [self saveImage:image toCollectionWithName:collectionName completionHandler:completionHandler];
         
     } else if (authorizationStatus == PHAuthorizationStatusNotDetermined) { // 如果没决定, 弹出指示框, 让用户选择
         
@@ -2894,14 +2442,31 @@ static CGRect oldframe;
             
             // 如果用户选择授权, 则保存图片
             if (status == PHAuthorizationStatusAuthorized) {
-                [self saveImage:image toCollectionWithName:collectionName];
+                [self saveImage:image toCollectionWithName:collectionName completionHandler:completionHandler];
             }
         }];
         
     }
 }
+
+/// 隐藏对应的字符串
++ (NSString *)hidePartWithStr:(NSString *)Str holderSingleStr:(NSString *)holderSingleStr location:(NSInteger)location length:(NSInteger)length
+{
+    NSString *hideNumStr = Str;
+    NSString *placeHolderStr=[NSString string];
+    if (![self judgeIsEmptyWithString:Str] && ![self judgeIsEmptyWithString:holderSingleStr])//判断非空
+    {
+        for (int i=0; i<length; i++)
+        {
+            placeHolderStr = [placeHolderStr stringByAppendingString:holderSingleStr];
+        }
+        hideNumStr =[Str stringByReplacingCharactersInRange:NSMakeRange(location, length) withString:placeHolderStr];
+    }
+    return hideNumStr;
+}
+
 // 保存图片
-+ (void)saveImage:(UIImage *)image toCollectionWithName:(NSString *)collectionName {
++ (void)saveImage:(UIImage *)image toCollectionWithName:(NSString *)collectionName completionHandler:(nullable void(^)(BOOL success, NSError *__nullable error))completionHandler {
     
     // 1. 获取相片库对象
     PHPhotoLibrary *library = [PHPhotoLibrary sharedPhotoLibrary];
@@ -2931,37 +2496,24 @@ static CGRect oldframe;
         // 2.5 将占位对象添加到相册请求中
         [collectionRequest addAssets:@[placeholder]];
         
-    } completionHandler:^(BOOL success, NSError * _Nullable error) {
-        
-        // 3. 判断是否出错, 如果报错, 声明保存不成功
-        if (error) {
-            NSLog(@"保存相册失败");
-        } else {
-            NSLog(@"保存相册成功");
-        }
-    }];
+    } completionHandler:completionHandler];
 }
 /**
  *  改变导航栏工具条字体颜色 0 为白色 1 为黑色
  */
 +(void)BackstatusBarStyle:(NSInteger)index{
   [UIApplication sharedApplication].statusBarStyle = index==0?(UIStatusBarStyleLightContent):(UIStatusBarStyleDefault);
-    
 }
 
 /**
  *  按钮旋转动画
  */
 +(void)RotatinganimationView:(UIButton *)btn animateWithDuration:(NSTimeInterval)duration{
-    btn.selected?(btn.selected=YES):(btn.selected=NO);
     if (btn.selected) {
-        btn.selected = NO;
         [UIView animateWithDuration:duration animations:^{
             btn.imageView.transform = CGAffineTransformMakeRotation(0);
         } completion:^(BOOL finished) {}];
-    }
-    else{
-        btn.selected = YES;
+    } else {
         [UIView animateWithDuration:duration animations:^{
             btn.imageView.transform = CGAffineTransformMakeRotation(M_PI);
         } completion:^(BOOL finished) {}];
@@ -3158,6 +2710,44 @@ static CGRect oldframe;
         }
     });
 }
+
+#pragma mark****************************************提示框****************************************
+
++ (void)makeToast:(NSString *)str
+{
+    [TFY_ScenePackage.keyWindow tfy_makeToast:str];
+}
+
++ (void)makeToast:(NSString *)str duration:(NSTimeInterval)duration {
+    [TFY_ScenePackage.keyWindow tfy_makeToast:str duration:duration];
+}
+
++ (void)makeToast:(NSString *)str duration:(NSTimeInterval)duration position:(CGPoint)position
+{
+    [TFY_ScenePackage.keyWindow tfy_makeToast:str duration:duration position:[NSValue valueWithCGPoint:position]];
+}
+
++ (void)makeToast:(NSString *)str duration:(NSTimeInterval)duration idposition:(id)position
+{
+    [TFY_ScenePackage.keyWindow tfy_makeToast:str duration:duration position:position];
+}
+
++ (void)hideToast {
+    [TFY_ScenePackage.keyWindow tfy_hideToast];
+}
+
++ (void)makeToastActivity
+{
+    [TFY_ScenePackage.keyWindow tfy_makeToastActivity:TFYToastPositionCenter];
+}
+
++ (void)hideToastActivity
+{
+    [TFY_ScenePackage.keyWindow tfy_hideToastActivity];
+}
+
+
+
 @end
 
 @implementation UIView (Utils_Chain)

@@ -90,37 +90,25 @@ TFY_CATEGORY_CHAIN_VIEW_IMPLEMENTATION(autoresizesSubviews, BOOL)
 
 - (CGRect (^)(CGRect, UIView * _Nonnull))convertRectTo{
     return  ^(CGRect rect, UIView *view){
-        return [self.view tfy_convertRectTo:rect :view];
+        return [self.view tfy_convertRectTo:rect subView:view];
     };
 }
 
-
 - (CGRect (^)(CGRect, UIView * _Nonnull))convertRectFrom{
     return  ^(CGRect rect, UIView *view){
-        return [self.view tfy_convertRectFrom:rect :view];
+        return [self.view tfy_convertRectFrom:rect subView:view];
     };
 }
 
 - (CGPoint (^)(CGPoint, UIView * _Nonnull))convertPointTo{
     return  ^(CGPoint point, UIView *view){
-        return [self.view tfy_convertPointTo:point :view];
+        return [self.view tfy_convertPointTo:point subView:view];
     };
 }
 
 - (CGPoint (^)(CGPoint, UIView * _Nonnull))convertPointFrom{
     return  ^(CGPoint point, UIView *view){
-        return [self.view tfy_convertPointFrom:point :view];
-    };
-}
-/**
- * 便捷添加圆角 clipType 圆角类型  radius 圆角角度
- */
-- (id  _Nonnull (^)(CornerClipType, CGFloat))clipRadius{
-    return ^(CornerClipType clipType, CGFloat radius){
-        [self enumerateObjectsUsingBlock:^(UIView * _Nonnull obj) {
-            [obj tfy_clipWithType:clipType radius:radius];
-        }];
-        return self;
+        return [self.view tfy_convertPointFrom:point subView:view];
     };
 }
 
@@ -172,6 +160,7 @@ TFY_CATEGORY_CHAIN_VIEW_IMPLEMENTATION(multipleTouchEnabled, BOOL)
 TFY_CATEGORY_CHAIN_VIEW_IMPLEMENTATION(contentMode, UIViewContentMode)
 TFY_CATEGORY_CHAIN_VIEW_IMPLEMENTATION(transform, CGAffineTransform)
 
+
 - (id  _Nonnull (^)(BOOL))endEditing{
     return ^(BOOL end){
         [self enumerateObjectsUsingBlock:^(UIView * _Nonnull obj) {
@@ -185,6 +174,24 @@ TFY_CATEGORY_CHAIN_VIEW_IMPLEMENTATION(transform, CGAffineTransform)
     return ^(UIView *superView){
         [self enumerateObjectsUsingBlock:^(UIView * _Nonnull obj) {
             [superView addSubview:obj];
+        }];
+        return self;
+    };
+}
+
+- (id  _Nonnull (^)(CALayer * _Nonnull))addToSublayer {
+    return ^(CALayer *layer){
+        [self enumerateObjectsUsingBlock:^(UIView * _Nonnull obj) {
+            [obj.layer addSublayer:layer];
+        }];
+        return self;
+    };
+}
+
+- (id _Nonnull (^)(id))contents {
+    return ^(id contents) {
+        [self enumerateObjectsUsingBlock:^(UIView *_Nonnull obj) {
+            obj.layer.contents = contents;
         }];
         return self;
     };

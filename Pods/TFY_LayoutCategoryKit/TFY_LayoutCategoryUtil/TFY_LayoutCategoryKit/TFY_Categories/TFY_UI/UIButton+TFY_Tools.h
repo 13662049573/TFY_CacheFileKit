@@ -12,10 +12,14 @@
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger, ButtonImageDirection) {
-    ButtonImageDirectionTop,
-    ButtonImageDirectionLeft,
-    ButtonImageDirectionRight,
-    ButtonImageDirectionBottom,
+    ButtonDirectionCenterImageTop,    //内容居中>>图上文右
+    ButtonDirectionCenterImageLeft,   //内容居中>>图左文右
+    ButtonDirectionCenterImageRight,  //内容居中>>图右文左
+    ButtonDirectionCenterImageBottom, //内容居中>>图下文上
+    ButtonDirectionLeftImageLeft,     //内容居左>>图左文右
+    ButtonDirectionLeftImageRight,    //内容居左>>图右文左
+    ButtonDirectionRightImageLeft,    //内容居右>>图左文右
+    ButtonDirectionRightImageRight    //内容居右>>图右文左
 };
 
 typedef void(^ButtonLimitTimesTapBlock)(NSUInteger time, BOOL *stop, UIButton *button);
@@ -34,7 +38,18 @@ typedef void(^ButtonLimitTimesTapBlock)(NSUInteger time, BOOL *stop, UIButton *b
  * 时间间隔
  */
 @property (nonatomic, copy, readonly) UIButton* (^tfy_tapSpaceTime) (NSTimeInterval spaceTime);
-
+/**
+ 是否开始随意移动模式
+ */
+@property(nonatomic , assign) BOOL tfy_dragEnable;
+/**
+ 是否允许边际显示
+ */
+@property(nonatomic , assign) BOOL tfy_adsorbEnable;
+/**
+   边际两边的显示的距离
+ */
+@property(nonatomic , assign) CGFloat tfy_padding;
 /**
  * 清除限制
  */

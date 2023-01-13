@@ -10,6 +10,7 @@
 #import <UIKit/UIKit.h>
 #import <WebKit/WKWebView.h>
 
+
 static NSString * _Nonnull const AppLanguage = @"appLanguage";
 
 #define TFY_Localized(key, comment)  [[NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:[NSString stringWithFormat:@"%@",[[NSUserDefaults standardUserDefaults] objectForKey:AppLanguage]] ofType:@"lproj"]] localizedStringForKey:(key) value:@"" table:comment]
@@ -104,24 +105,6 @@ typedef NS_ENUM(NSUInteger, Temperature) {
 /***  把多个json字符串转为一个json字符串*/
 +(NSString *)objArrayToJSON:(NSArray *)array;
 
-/***   获取当前时间*/
-+(NSString *)audioTime;
-
-/***   字符串时间——时间戳*/
-+(NSString *)cTimestampFromString:(NSString *)theTime;
-
-/***   时间戳——字符串时间*/
-+(NSString *)cStringFromTimestamp:(NSString *)timestamp;
-
-/***  两个时间之差*/
-+(NSString *)intervalFromLastDate:(NSString *)dateString1 toTheDate:(NSString *)dateString2;
-
-/***   一个时间距现在的时间*/
-+(NSString *)intervalSinceNow:(NSString *)theDate;
-
-/***  将字符串转化为中文时间*/
-+(NSString *)Formatter:(NSString *)time;
-
 /***  去掉手机号码上的+号和+86*/
 +(NSString *)formatPhoneNum:(NSString *)phone;
 
@@ -142,10 +125,6 @@ typedef NS_ENUM(NSUInteger, Temperature) {
 
 /***  国际化区域名称*/
 +(NSString *)localizedModel;
-
-/***  获取当前年份*/
-+(NSString *)setDateFormat;
-
 /***  当前使用的语言*/
 +(NSString *)defaultsTH;
 
@@ -198,15 +177,8 @@ typedef NS_ENUM(NSUInteger, Temperature) {
 /***  不需要加密的参数请求*/
 +(NSString *)requestparmereaddWithDict:(NSDictionary *)dict;
 
-/***  秒数转换成时间,时，分，秒 转换成时分秒*/
-+(NSString *)timeFormatted:(int)totalSeconds;
-
 /***  视频显示时间*/
 +(NSString *)convertSecond2Time:(int)second;
-
-/***   将时间数据（毫秒）转换为天和小时*/
-+(NSString*)getOvertime:(NSString*)mStr;
-
 /***   获取图片格式*/
 +(NSString *)typeForImageData:(NSData *)data;
 
@@ -243,14 +215,14 @@ typedef NS_ENUM(NSUInteger, Temperature) {
 /***  根据字节大小返回文件大小字符KB、MB*/
 + (NSString *)stringFromByteCount:(long long)byteCount;
 
-/***  获得设备型号*/
-+ (NSString *)getCurrentDeviceModel;
-
 /***  根据字节大小返回文件大小字符KB、MB GB*/
 +(NSString *)convertFileSize:(long long)size;
-
+/*** 隐藏对应的字符串*/
++ (NSString *)hidePartWithStr:(NSString *)Str holderSingleStr:(NSString *)holderSingleStr location:(NSInteger)location length:(NSInteger)length;
 /*** 获取当前IP地址*/
 +(nullable NSString*)getCurrentWifiIP;
+/// 判断运营商
++ (NSString *)getPhoneNumType:(NSString *)phoneNum;
 
 #pragma mark****************************************判断方法****************************************
 /***  判断字符串是否是纯数字*/
@@ -358,9 +330,6 @@ typedef NS_ENUM(NSUInteger, Temperature) {
 /*** 验证运营商:电信*/
 + (BOOL)isTelecomPperators:(NSString *)string;
 
-/***  判断数组中数字是否连续*/
-+(BOOL)suibian:(NSArray*)array;
-
 /***  判断数组中，字母是否连续*/
 +(BOOL)hasSerialSubstrWithString:(NSString*)string;
 
@@ -402,6 +371,15 @@ typedef NS_ENUM(NSUInteger, Temperature) {
 /***  存储当前NSInteger*/
 +(void)saveIntValueInUD:(NSInteger)value forKey:(NSString *)key;
 
+/**存储当前CGFloat*/
++(void)saveFloatValueInUD:(CGFloat)value forKey:(NSString *)key;
+
+/**存储当前Double*/
++(void)saveDoubleValueInUD:(CGFloat)value forKey:(NSString *)key;
+
+/**存储当前Double*/
++(void)saveUrlValueInUD:(NSURL*)value forKey:(NSString *)key;
+
 /***   保存模型id*/
 +(void)saveValueInUD:(id)value forKey:(NSString *)key;
 
@@ -420,6 +398,15 @@ typedef NS_ENUM(NSUInteger, Temperature) {
 /***  获取保存的NSInteger*/
 +(NSInteger )getIntValueInUDWithKey:(NSString *)key;
 
+/**获取保存的CGFloat*/
++ (CGFloat)getFloatValueInUDWithKey:(NSString *)key;
+
+/**获取保存的double*/
++ (double)getdoubleValueInUDWithKey:(NSString *)key;
+
+/**获取保存的NSURL*/
++ (NSURL*)getURLValueInUDWithKey:(NSString *)key;
+
 /***  获取保存的NSDictionary*/
 +(NSDictionary *)getDicValueInUDWithKey:(NSString *)key;
 
@@ -430,13 +417,17 @@ typedef NS_ENUM(NSUInteger, Temperature) {
 +(NSData *)getdataValueInUDWithKey:(NSString *)key;
 
 /***   归档*/
-+ (void)keyedArchiverObject:(id)object ForKey:(NSString *)key ToFile:(NSString *)path;
++ (void)keyedArchiverObject:(id)object ToFile:(NSString *)path;
 
 /***  反归档*/
-+(NSArray *)keyedUnArchiverForKey:(NSString *)key FromFile:(NSString *)path;
++(id)keyedUnArchiverForKey:(id)object FromFile:(NSString *)path;
 
 /***  将数组拆分成固定长度的子数组*/
 +(NSArray *)splitArray:(NSArray *)array withSubSize:(int)subSize;
+/**
+    根据文本大小，宽度，返回换行的个数 和 换行数据
+ */
++ (NSArray *)getLinesArrayOfStringInrowsOfString:(NSString *)text withFont:(UIFont *)font withWidth:(CGFloat)width;
 
 /***  获取保存的BOOL*/
 +(BOOL)getBoolValueInUDWithKey:(NSString *)key;
@@ -464,7 +455,7 @@ typedef NS_ENUM(NSUInteger, Temperature) {
 
 /***  保存相应viwe的图片到相册*/
 +(void)savePhoto:(UIView *)views;
-+(void)saveImage:(UIImage *)image assetCollectionName:(NSString *)collectionName;
++(void)saveImage:(UIImage *)image assetCollectionName:(NSString *)collectionName completionHandler:(nullable void(^)(BOOL success, NSError *__nullable error))completionHandler;
 
 /***  修改状态栏的颜色*/
 + (void)statusBarBackgroundColor:(UIColor *)statusBarColor;
@@ -480,12 +471,6 @@ typedef NS_ENUM(NSUInteger, Temperature) {
 
 /***  清楚缓存数据*/
 +(void)clearFile;
-
-/***  打印成员变量列表*/
-+ (void)runTimeConsoleMemberListWithClassName:(Class)className;
-
-/***  打印属性列表*/
-+ (void)runTimeConsolePropertyListWithClassName:(Class)className;
 
 /***  截取控制器所生产图片*/
 + (void)screenSnapshot:(UIView *)snapshotView finishBlock:(void(^)(UIImage *snapShotImage))finishBloc;
@@ -509,6 +494,17 @@ typedef NS_ENUM(NSUInteger, Temperature) {
  *  横屏截图长度 --- 获取主图片数据所返回的总图片长度 vertical 横屏 1 竖屏 0
  */
 + (void)WKWebViewScroll:(WKWebView *)webView vertical:(NSInteger)vertical CaptureCompletionHandler:(void(^)(UIImage *capturedImage))completionHandler;
+
+#pragma mark****************************************提示框****************************************
+
++ (void)makeToast:(NSString *)str;
++ (void)makeToast:(NSString *)str duration:(NSTimeInterval)duration;
++ (void)makeToast:(NSString *)str duration:(NSTimeInterval)duration position:(CGPoint)position;
++ (void)makeToast:(NSString *)str duration:(NSTimeInterval)duration idposition:(id)position;
++ (void)hideToast;
++ (void)makeToastActivity;
++ (void)hideToastActivity;
+
 @end
 
 @interface UIView (Utils_Chain)

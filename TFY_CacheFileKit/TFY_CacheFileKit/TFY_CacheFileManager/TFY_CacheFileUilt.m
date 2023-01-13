@@ -12,17 +12,22 @@
 + (UIViewController *)presentMenuView {
     // 获取根式控制器rootViewController，并将rootViewController设置为当前主控制器（防止菜单弹出时，部分被导航栏或标签栏遮盖）
     UIWindow *window = [self lastWindow];
-    UIViewController *rootVC = [self getTheLatestViewController:window.rootViewController];
-    rootVC.definesPresentationContext = YES;
-    // 当前主控制器推出菜单栏
-    return rootVC;
-}
-//递归返回最上面的presentedViewController
-+ (UIViewController *)getTheLatestViewController:(UIViewController *)vc {
-    if (vc.presentedViewController == nil) {
-        return vc;
+    UIViewController* currentViewController = window.rootViewController;
+    BOOL runLoopFind = YES;
+    while (runLoopFind) {
+        if (currentViewController.presentedViewController) {
+            currentViewController = currentViewController.presentedViewController;
+        } else {
+            if ([currentViewController isKindOfClass:[UINavigationController class]]) {
+                currentViewController = ((UINavigationController *)currentViewController).visibleViewController;
+            } else if ([currentViewController isKindOfClass:[UITabBarController class]]) {
+                currentViewController = ((UITabBarController* )currentViewController).selectedViewController;
+            } else {
+                break;
+            }
+        }
     }
-    return [self getTheLatestViewController:vc.presentedViewController];
+    return currentViewController;
 }
 
 + (UIWindow*)lastWindow {

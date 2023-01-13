@@ -713,4 +713,138 @@ static void RGBtoHSV( float r, float g, float b, float *h, float *s, float *v )
     return [NSString stringWithFormat:@"[%d,%d,%d,%f]",(int)(r*255),(int)(g*255),(int)(b*255),a];
 }
 
++ (UIColor *)tfy_colorWithColorLight:(UIColor *)light dark:(UIColor *)dark {
+    if (@available(iOS 13.0, *)) {
+        return [self colorWithDynamicProvider:^UIColor * _Nonnull(UITraitCollection * _Nonnull traitCollection) {
+            switch (traitCollection.userInterfaceStyle) {
+                case UIUserInterfaceStyleDark:
+                    return dark;
+                case UIUserInterfaceStyleLight:
+                case UIUserInterfaceStyleUnspecified:
+                default:
+                    return light;
+            }
+        }];
+    } else {
+        return light;
+    }
+}
+
+
++ (UIColor *)tfy_systemBlackColor {
+    if (@available(iOS 13.0, *)) {
+        return [self systemBackgroundColor];
+    } else {
+        return [UIColor whiteColor];
+    }
+}
+
++ (UIColor *)tfy_systemGrayColor {
+    if (@available(iOS 13.0, *)) {
+        return [self systemGrayColor];
+    } else {
+        return [UIColor grayColor];
+    }
+}
+
++ (UIColor *)tfy_systemRedColor {
+    if (@available(iOS 13.0, *)) {
+        return [self systemRedColor];
+    } else {
+        return [UIColor redColor];
+    }
+}
+
++ (UIColor *)tfy_systemBlueColor {
+    if (@available(iOS 13.0, *)) {
+        return [self systemBlueColor];
+    } else {
+        return [UIColor blueColor];
+    }
+}
+
+//#pragma mark - 颜色值十六进制 转换  #ffffff -> uicolor
+//
+//+ (UIColor *)tfy_colorWithHexString:(NSString *)hexString {
+//    NSString *colorString = [[hexString stringByReplacingOccurrencesOfString:@"#" withString:@""] uppercaseString];
+//    CGFloat alpha, red, blue, green;
+//    switch ([colorString length]) {
+//        case 3: // #RGB
+//            alpha = 1.0f;
+//            red   = [self tfy_colorComponentFrom:colorString start:0 length:1];
+//            green = [self tfy_colorComponentFrom:colorString start:1 length:1];
+//            blue  = [self tfy_colorComponentFrom:colorString start:2 length:1];
+//            break;
+//        case 4: // #ARGB
+//            alpha = [self tfy_colorComponentFrom:colorString start:0 length:1];
+//            red   = [self tfy_colorComponentFrom:colorString start:1 length:1];
+//            green = [self tfy_colorComponentFrom:colorString start:2 length:1];
+//            blue  = [self tfy_colorComponentFrom:colorString start:3 length:1];
+//            break;
+//        case 6: // #RRGGBB
+//            alpha = 1.0f;
+//            red   = [self tfy_colorComponentFrom:colorString start:0 length:2];
+//            green = [self tfy_colorComponentFrom:colorString start:2 length:2];
+//            blue  = [self tfy_colorComponentFrom:colorString start:4 length:2];
+//            break;
+//        case 8: // #AARRGGBB
+//            alpha = [self tfy_colorComponentFrom:colorString start:0 length:2];
+//            red   = [self tfy_colorComponentFrom:colorString start:2 length:2];
+//            green = [self tfy_colorComponentFrom:colorString start:4 length:2];
+//            blue  = [self tfy_colorComponentFrom:colorString start:6 length:2];
+//            break;
+//        default:
+//            NSLog(@"色值有问题,被改为默认白色了,具体代码全局搜索这条log输出文字");
+//            return [UIColor whiteColor];
+//            //[NSException raise:@"Invalid color value" format: @"Color value %@ is invalid.  It should be a hex value of the form #RBG, #ARGB, #RRGGBB, or #AARRGGBB", hexString];
+//            break;
+//    }
+//    return [UIColor colorWithRed: red green: green blue: blue alpha: alpha];
+//}
+//
+//+ (UIColor *)tfy_colorWithHexString:(NSString *)hexString withAlpha:(float)alp {
+//    NSString *colorString = [[hexString stringByReplacingOccurrencesOfString:@"#" withString:@""] uppercaseString];
+//    CGFloat alpha, red, blue, green;
+//    switch ([colorString length]) {
+//        case 3: // #RGB
+//            alpha = alp;
+//            red   = [self tfy_colorComponentFrom:colorString start:0 length:1];
+//            green = [self tfy_colorComponentFrom:colorString start:1 length:1];
+//            blue  = [self tfy_colorComponentFrom:colorString start:2 length:1];
+//            break;
+//        case 4: // #ARGB
+//            alpha = [self tfy_colorComponentFrom:colorString start:0 length:1];
+//            red   = [self tfy_colorComponentFrom:colorString start:1 length:1];
+//            green = [self tfy_colorComponentFrom:colorString start:2 length:1];
+//            blue  = [self tfy_colorComponentFrom:colorString start:3 length:1];
+//            break;
+//        case 6: // #RRGGBB
+//            alpha = alp;
+//            red   = [self tfy_colorComponentFrom:colorString start:0 length:2];
+//            green = [self tfy_colorComponentFrom:colorString start:2 length:2];
+//            blue  = [self tfy_colorComponentFrom:colorString start:4 length:2];
+//            break;
+//        case 8: // #AARRGGBB
+//            alpha = [self tfy_colorComponentFrom:colorString start:0 length:2];
+//            red   = [self tfy_colorComponentFrom:colorString start:2 length:2];
+//            green = [self tfy_colorComponentFrom:colorString start:4 length:2];
+//            blue  = [self tfy_colorComponentFrom:colorString start:6 length:2];
+//            break;
+//        default:
+//            NSLog(@"色值有问题,被改为默认白色了,具体代码全局搜索这条log输出文字");
+//            return [UIColor whiteColor];
+//            //[NSException raise:@"Invalid color value" format: @"Color value %@ is invalid.  It should be a hex value of the form #RBG, #ARGB, #RRGGBB, or #AARRGGBB", hexString];
+//            break;
+//    }
+//    return [UIColor colorWithRed:red green:green blue:blue alpha:alpha];
+//}
+//
+//+ (CGFloat)tfy_colorComponentFrom:(NSString *)string start:(NSUInteger)start length:(NSUInteger)length {
+//    NSString *substring = [string substringWithRange: NSMakeRange(start, length)];
+//    NSString *fullHex = length == 2 ? substring : [NSString stringWithFormat: @"%@%@", substring, substring];
+//    unsigned hexComponent;
+//    [[NSScanner scannerWithString:fullHex] scanHexInt:&hexComponent];
+//    return hexComponent / 255.0;
+//}
+
 @end

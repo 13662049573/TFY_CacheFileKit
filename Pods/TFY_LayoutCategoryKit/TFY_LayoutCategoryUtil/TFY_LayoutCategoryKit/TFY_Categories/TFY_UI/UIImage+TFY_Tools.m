@@ -15,7 +15,112 @@
 #import <AVFoundation/AVAsset.h>
 #import <CoreImage/CoreImage.h>
 
+#if __has_feature(objc_arc)
+#define toCF (__bridge CFTypeRef)
+#define fromCF (__bridge id)
+#else
+#define toCF (CFTypeRef)
+#define fromCF (id)
+#endif
+
 @implementation UIImage (TFY_Tools)
+
+static int delayCentisecondsForImageAtIndex(CGImageSourceRef const source, size_t const i) {
+    int delayCentiseconds = 1;
+    CFDictionaryRef const properties = CGImageSourceCopyPropertiesAtIndex(source, i, NULL);
+    if (properties) {
+        CFDictionaryRef const gifProperties = CFDictionaryGetValue(properties, kCGImagePropertyGIFDictionary);
+        if (gifProperties) {
+            NSNumber *number = fromCF CFDictionaryGetValue(gifProperties, kCGImagePropertyGIFUnclampedDelayTime);
+            if (number == NULL || [number doubleValue] == 0) {
+                number = fromCF CFDictionaryGetValue(gifProperties, kCGImagePropertyGIFDelayTime);
+            }
+            if ([number doubleValue] > 0) {
+                // Even though the GIF stores the delay as an integer number of centiseconds, ImageIO “helpfully” converts that to seconds for us.
+                delayCentiseconds = (int)lrint([number doubleValue] * 100);
+            }
+        }
+        CFRelease(properties);
+    }
+    return delayCentiseconds;
+}
+
+static void createImagesAndDelays(CGImageSourceRef source, size_t count, CGImageRef imagesOut[count], int delayCentisecondsOut[count]) {
+    for (size_t i = 0; i < count; ++i) {
+        imagesOut[i] = CGImageSourceCreateImageAtIndex(source, i, NULL);
+        delayCentisecondsOut[i] = delayCentisecondsForImageAtIndex(source, i);
+    }
+}
+
+static int sum(size_t const count, int const *const values) {
+    int theSum = 0;
+    for (size_t i = 0; i < count; ++i) {
+        theSum += values[i];
+    }
+    return theSum;
+}
+
+static int pairGCD(int a, int b) {
+    if (a < b)
+        return pairGCD(b, a);
+    while (true) {
+        int const r = a % b;
+        if (r == 0)
+            return b;
+        a = b;
+        b = r;
+    }
+}
+
+static int vectorGCD(size_t const count, int const *const values) {
+    int gcd = values[0];
+    for (size_t i = 1; i < count; ++i) {
+        gcd = pairGCD(values[i], gcd);
+    }
+    return gcd;
+}
+
+static NSArray *frameArray(size_t const count, CGImageRef const images[count], int const delayCentiseconds[count], int const totalDurationCentiseconds) {
+    int const gcd = vectorGCD(count, delayCentiseconds);
+    size_t const frameCount = totalDurationCentiseconds / gcd;
+    UIImage *frames[frameCount];
+    for (size_t i = 0, f = 0; i < count; ++i) {
+        UIImage *const frame = [UIImage imageWithCGImage:images[i]];
+        for (size_t j = delayCentiseconds[i] / gcd; j > 0; --j) {
+            frames[f++] = frame;
+        }
+    }
+    return [NSArray arrayWithObjects:frames count:frameCount];
+}
+
+static void releaseImages(size_t const count, CGImageRef const images[count]) {
+    for (size_t i = 0; i < count; ++i) {
+        CGImageRelease(images[i]);
+    }
+}
+
+static UIImage *animatedImageWithAnimatedGIFImageSource(CGImageSourceRef const source) {
+    size_t const count = CGImageSourceGetCount(source);
+    CGImageRef images[count];
+    int delayCentiseconds[count]; // in centiseconds
+    createImagesAndDelays(source, count, images, delayCentiseconds);
+    int const totalDurationCentiseconds = sum(count, delayCentiseconds);
+    NSArray *const frames = frameArray(count, images, delayCentiseconds, totalDurationCentiseconds);
+    UIImage *const animation = [UIImage animatedImageWithImages:frames duration:(NSTimeInterval)totalDurationCentiseconds / 100.0];
+    releaseImages(count, images);
+    return animation;
+}
+
+static UIImage *animatedImageWithAnimatedGIFReleasingImageSource(CGImageSourceRef CF_RELEASES_ARGUMENT source) {
+    if (source) {
+        UIImage *const image = animatedImageWithAnimatedGIFImageSource(source);
+        CFRelease(source);
+        return image;
+    } else {
+        return nil;
+    }
+}
+
 
 static NSTimeInterval _CGImageSourceGetGIFFrameDelayAtIndex(CGImageSourceRef source, size_t index) {
     NSTimeInterval delay = 0;
@@ -33,6 +138,14 @@ static NSTimeInterval _CGImageSourceGetGIFFrameDelayAtIndex(CGImageSourceRef sou
     }
     if (delay < 0.02) delay = 0.1;
     return delay;
+}
+
++ (UIImage *)tfy_animatedImageWithAnimatedGIFData:(NSData *)data {
+    return animatedImageWithAnimatedGIFReleasingImageSource(CGImageSourceCreateWithData(toCF data, NULL));
+}
+
++ (UIImage *)tfy_animatedImageWithAnimatedGIFURL:(NSURL *)url {
+    return animatedImageWithAnimatedGIFReleasingImageSource(CGImageSourceCreateWithURL(toCF url, NULL));
 }
 
 + (UIImage *)tfy_imageWithSmallGIFData:(NSData *)data scale:(CGFloat)scale {
@@ -130,20 +243,66 @@ static NSTimeInterval _CGImageSourceGetGIFFrameDelayAtIndex(CGImageSourceRef sou
     return image;
 }
 
-+ (UIImage *)tfy_imageWithColor:(UIColor *)color{
-    return [self tfy_imageWithColor:color size:CGSizeMake(1, 1)];
-}
-
-+ (UIImage *)tfy_imageWithColor:(UIColor *)color size:(CGSize)size{
-    if (!color || size.width <= 0 || size.height <= 0) return nil;
-    CGRect rect = CGRectMake(0, 0, size.width, size.height);
-    UIGraphicsBeginImageContextWithOptions(rect.size, NO, 0);
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    CGContextSetFillColorWithColor(context, color.CGColor);
-    CGContextFillRect(context, rect);
-    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return image;
+//矫正image 位置
++ (UIImage *)tfy_fixOrientation:(UIImage *)image {
+    if (image.imageOrientation == UIImageOrientationUp)
+        return image;
+    CGAffineTransform transform = CGAffineTransformIdentity;
+    switch (image.imageOrientation) {
+        case UIImageOrientationDown:
+        case UIImageOrientationDownMirrored:
+            transform = CGAffineTransformTranslate(transform, image.size.width, image.size.height);
+            transform = CGAffineTransformRotate(transform,M_PI);
+            break;
+        case UIImageOrientationLeft:
+        case UIImageOrientationLeftMirrored:
+            transform = CGAffineTransformTranslate(transform, image.size.width,0);
+            transform = CGAffineTransformRotate(transform,M_PI_2);
+            break;
+        case UIImageOrientationRight:
+        case UIImageOrientationRightMirrored:
+            transform = CGAffineTransformTranslate(transform,0, image.size.height);
+            transform = CGAffineTransformRotate(transform, -M_PI_2);
+            break;
+        default:
+            break;
+    }
+    switch (image.imageOrientation) {
+        case UIImageOrientationUpMirrored:
+        case UIImageOrientationDownMirrored:
+            transform = CGAffineTransformTranslate(transform, image.size.width,0);
+            transform = CGAffineTransformScale(transform, -1,1);
+            break;
+        case UIImageOrientationLeftMirrored:
+        case UIImageOrientationRightMirrored:
+            transform = CGAffineTransformTranslate(transform, image.size.height,0);
+            transform = CGAffineTransformScale(transform, -1,1);
+            break;
+        default:
+            break;
+    }
+    CGContextRef ctx = CGBitmapContextCreate(NULL, image.size.width, image.size.height,
+                                             CGImageGetBitsPerComponent(image.CGImage),0,
+                                             CGImageGetColorSpace(image.CGImage),
+                                             CGImageGetBitmapInfo(image.CGImage));
+    CGContextConcatCTM(ctx, transform);
+    switch (image.imageOrientation) {
+        case UIImageOrientationLeft:
+        case UIImageOrientationLeftMirrored:
+        case UIImageOrientationRight:
+        case UIImageOrientationRightMirrored:
+            // Grr...
+            CGContextDrawImage(ctx,CGRectMake(0,0,image.size.height,image.size.width), image.CGImage);
+            break;
+        default:
+            CGContextDrawImage(ctx,CGRectMake(0,0,image.size.width,image.size.height), image.CGImage);
+            break;
+    }
+    CGImageRef cgimg = CGBitmapContextCreateImage(ctx);
+    UIImage *img = [UIImage imageWithCGImage:cgimg];
+    CGContextRelease(ctx);
+    CGImageRelease(cgimg);
+    return img;
 }
 
 + (UIImage *)tfy_imageSize:(CGSize)size withDrawContext:(void (^)(CGContextRef _Nonnull))drawContext{
@@ -167,6 +326,58 @@ static NSTimeInterval _CGImageSourceGetGIFFrameDelayAtIndex(CGImageSourceRef sou
             alpha == kCGImageAlphaPremultipliedFirst ||
             alpha == kCGImageAlphaPremultipliedLast);
 }
+
+- (CGSize)tfy_sizeWithMaxRelativeSize:(CGSize)size isMax:(BOOL) isMax{
+    CGSize imageSize = self.size;
+    CGSize resultSize = CGSizeZero;
+    if (size.width == 0&&size.height != 0) {
+        resultSize.height = size.height;
+        resultSize.width = imageSize.width/imageSize.height * resultSize.height;
+        return resultSize;
+    }else if(size.width != 0&&size.height == 0){
+        resultSize.width = size.width;
+        resultSize.height = resultSize.width * imageSize.height/imageSize.width;
+        return resultSize;
+    }else if(size.width == 0&&size.height == 0){
+        return self.size;
+    }
+    if ((imageSize.width/imageSize.height >= size.width/size.height&&isMax)||(imageSize.width/imageSize.height < size.width/size.height&&!isMax)){
+        resultSize.height = size.height;
+        resultSize.width = imageSize.width/imageSize.height * resultSize.height;
+        return resultSize;
+    }else{
+        resultSize.width = size.width;
+        resultSize.height = resultSize.width * imageSize.height/imageSize.width;
+        return resultSize;
+    }
+    return resultSize;
+}
+
+- (CGSize)tfy_sizeWithMaxRelativeSize:(CGSize)size {
+    CGSize resize = [self tfy_sizeWithMaxRelativeSize:size isMax:YES];
+    return resize;
+}
+
+- (CGSize)tfy_sizeWithMinRelativeSize:(CGSize)size{
+    CGSize resize = [self tfy_sizeWithMaxRelativeSize:size isMax:NO];
+    return resize;
+}
+
+- (BOOL)tfy_isPngImage {
+    CGImageAlphaInfo alphaInfo = CGImageGetAlphaInfo(self.CGImage);
+    BOOL isPng = !(alphaInfo==kCGImageAlphaNone||alphaInfo==kCGImageAlphaNoneSkipLast||alphaInfo==kCGImageAlphaNoneSkipFirst);
+    return isPng;
+}
+
+- (NSUInteger)tfy_lengthOfRawData{
+    CGDataProviderRef providerRef = CGImageGetDataProvider(self.CGImage);
+    CFDataRef dataRef = CGDataProviderCopyData(providerRef);
+    CFIndex len = CFDataGetLength(dataRef);
+    CFRelease(dataRef);
+    return (NSUInteger)len;
+}
+
+
 
 - (void)tfy_drawInRect:(CGRect)rect withContentMode:(UIViewContentMode)contentModel clipsToBounds:(BOOL)clips{
     CGRect drawRect = TFY_CGRectFitWithContentMode(rect, rect.size, contentModel);
@@ -727,7 +938,7 @@ static NSTimeInterval _CGImageSourceGetGIFFrameDelayAtIndex(CGImageSourceRef sou
         CGFloat inputRadius = blurRadius * scale;
         if (inputRadius - 2.0 < __FLT_EPSILON__) inputRadius = 2.0;
         uint32_t radius = floor((inputRadius * 3.0 * sqrt(2 * M_PI) / 4 + 0.5) / 2);
-        radius |= 1; // force radius to be odd so that the three box-blur methodology works.
+        radius |= 1; 
         int iterations;
         if (blurRadius * scale < 0.5) iterations = 1;
         else if (blurRadius * scale < 1.5) iterations = 2;
@@ -742,11 +953,7 @@ static NSTimeInterval _CGImageSourceGetGIFFrameDelayAtIndex(CGImageSourceRef sou
         }
         free(temp);
     }
-    
-    
     if (hasSaturation) {
-        // These values appear in the W3C Filter Effects spec:
-        // https://dvcs.w3.org/hg/FXTF/raw-file/default/filters/Publish.html#grayscaleEquivalent
         CGFloat s = saturation;
         CGFloat matrixFloat[] = {
             0.0722 + 0.9278 * s,  0.0722 - 0.0722 * s,  0.0722 - 0.0722 * s,  0,
@@ -2004,6 +2211,117 @@ void TFY_ProviderReleaseData(void * info, const void * data, size_t size) {
     CGImageRelease(subImageRef);
     return smallImage;
     
+}
+
++ (UIImage *)tfy_imagePath:(NSString *)path
+{
+    UIImage *image = [UIImage tfy_imageWithImageLight:path dark:[NSString stringWithFormat:@"%@_dark",path]];
+    return image;
+}
+
++ (void)tfy_fixResizableImage{
+    if (@available(iOS 13.0, *)) {
+        Class klass = UIImage.class;
+        SEL selector = @selector(resizableImageWithCapInsets:resizingMode:);
+        Method method = class_getInstanceMethod(klass, selector);
+        if (method == NULL) {
+            return;
+        }
+        
+        IMP originalImp = class_getMethodImplementation(klass, selector);
+        if (!originalImp) {
+            return;
+        }
+        
+        IMP dynamicColorCompatibleImp = imp_implementationWithBlock(^UIImage *(UIImage *_self, UIEdgeInsets insets, UIImageResizingMode resizingMode) {
+                UITraitCollection *lightTrait = [self lightTrait];
+                UITraitCollection *darkTrait = [self darkTrait];
+
+                UIImage *resizable = ((UIImage * (*)(UIImage *, SEL, UIEdgeInsets, UIImageResizingMode))
+                                          originalImp)(_self, selector, insets, resizingMode);
+                UIImage *resizableInLight = [_self.imageAsset imageWithTraitCollection:lightTrait];
+                UIImage *resizableInDark = [_self.imageAsset imageWithTraitCollection:darkTrait];
+            
+                if (resizableInLight) {
+                    [resizable.imageAsset registerImage:((UIImage * (*)(UIImage *, SEL, UIEdgeInsets, UIImageResizingMode))
+                                                             originalImp)(resizableInLight, selector, insets, resizingMode)
+                                    withTraitCollection:lightTrait];
+                }
+                if (resizableInDark) {
+                    [resizable.imageAsset registerImage:((UIImage * (*)(UIImage *, SEL, UIEdgeInsets, UIImageResizingMode))
+                                                             originalImp)(resizableInDark, selector, insets, resizingMode)
+                                    withTraitCollection:darkTrait];
+                }
+                return resizable;
+            });
+
+        class_replaceMethod(klass, selector, dynamicColorCompatibleImp, method_getTypeEncoding(method));
+    }
+}
+
++ (UITraitCollection *)lightTrait API_AVAILABLE(ios(13.0)) {
+    static UITraitCollection *trait = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        trait = [UITraitCollection traitCollectionWithTraitsFromCollections:@[
+            [UITraitCollection traitCollectionWithDisplayScale:UIScreen.mainScreen.scale],
+            [UITraitCollection traitCollectionWithUserInterfaceStyle:UIUserInterfaceStyleLight]
+        ]];
+    });
+
+    return trait;
+}
+
++ (UITraitCollection *)darkTrait API_AVAILABLE(ios(13.0)) {
+    static UITraitCollection *trait = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        trait = [UITraitCollection traitCollectionWithTraitsFromCollections:@[
+            [UITraitCollection traitCollectionWithDisplayScale:UIScreen.mainScreen.scale],
+            [UITraitCollection traitCollectionWithUserInterfaceStyle:UIUserInterfaceStyleDark]
+        ]];
+    });
+
+    return trait;
+}
+
++ (UIImage *)tfy_imageWithImageLight:(NSString *)lightImagePath dark:(NSString *)darkImagePath {
+    UIImage *lightImage = [UIImage imageNamed:lightImagePath];
+    if (!lightImage) {
+        return nil;
+    }
+    if (@available(iOS 13.0, *)) {
+        UIImage *darkImage= [UIImage imageNamed:darkImagePath];
+        UITraitCollection *const scaleTraitCollection = [UITraitCollection currentTraitCollection];
+        UITraitCollection *const darkUnscaledTraitCollection = [UITraitCollection traitCollectionWithUserInterfaceStyle:UIUserInterfaceStyleDark];
+        UITraitCollection *const darkScaledTraitCollection = [UITraitCollection traitCollectionWithTraitsFromCollections:@[scaleTraitCollection, darkUnscaledTraitCollection]];
+        UIImage *image = [lightImage imageWithConfiguration:[lightImage.configuration configurationWithTraitCollection:[UITraitCollection traitCollectionWithUserInterfaceStyle:UIUserInterfaceStyleLight]]];
+        darkImage = [darkImage imageWithConfiguration:[darkImage.configuration configurationWithTraitCollection:[UITraitCollection traitCollectionWithUserInterfaceStyle:UIUserInterfaceStyleDark]]];
+        [image.imageAsset registerImage:darkImage withTraitCollection:darkScaledTraitCollection];
+        return image;
+    } else {
+        return lightImage;
+    }
+    return nil;
+}
+
++ (UIImage *)tfy_imageWithImageLightImg:(UIImage *)lightImage dark:(UIImage *)darkImage
+{
+    if (!lightImage) {
+        return nil;
+    }
+    if (@available(iOS 13.0, *)) {
+        UITraitCollection *const scaleTraitCollection = [UITraitCollection currentTraitCollection];
+        UITraitCollection *const darkUnscaledTraitCollection = [UITraitCollection traitCollectionWithUserInterfaceStyle:UIUserInterfaceStyleDark];
+        UITraitCollection *const darkScaledTraitCollection = [UITraitCollection traitCollectionWithTraitsFromCollections:@[scaleTraitCollection, darkUnscaledTraitCollection]];
+        UIImage *image = [lightImage imageWithConfiguration:[lightImage.configuration configurationWithTraitCollection:[UITraitCollection traitCollectionWithUserInterfaceStyle:UIUserInterfaceStyleLight]]];
+        darkImage = [darkImage imageWithConfiguration:[darkImage.configuration configurationWithTraitCollection:[UITraitCollection traitCollectionWithUserInterfaceStyle:UIUserInterfaceStyleDark]]];
+        [image.imageAsset registerImage:darkImage withTraitCollection:darkScaledTraitCollection];
+        return image;
+    } else {
+        return lightImage;
+    }
+    return nil;
 }
 
 @end

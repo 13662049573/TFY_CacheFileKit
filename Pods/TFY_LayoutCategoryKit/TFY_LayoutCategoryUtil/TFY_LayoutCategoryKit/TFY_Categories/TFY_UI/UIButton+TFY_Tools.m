@@ -31,6 +31,9 @@ static const void *ButtonRuntimeLimitTapTimes      = &ButtonRuntimeLimitTapTimes
 static const void *ButtonRuntimeLimitTapLastTimes  = &ButtonRuntimeLimitTapLastTimes;
 static const void *ButtonRuntimeLimitTapSpaceTimes = &ButtonRuntimeLimitTapSpaceTimes;
 static const void *ButtonRuntimeLimitIsStop        = &ButtonRuntimeLimitIsStop;
+static const void *DragEnableKey = &DragEnableKey;
+static const void *AdsorbEnableKey = &AdsorbEnableKey;
+static const void *PaddingGKey = &PaddingGKey;
 
 static NSString *UI_swizzleButtonMethodName = @"_UI_swizzleButtonLimitTimeMethod";
 
@@ -95,7 +98,7 @@ CG_INLINE void UI_swizzleButtonIfNeed(Class swizzleClass){
     textHeight = self.titleLabel.frame.size.height;
     space = space / 2;
     switch (direction) {
-        case ButtonImageDirectionTop:{
+        case ButtonDirectionCenterImageTop:{
             x = textHeight / 2 + space;
             y = textWidth / 2;
             self.imageEdgeInsets = UIEdgeInsetsMake(-x, y, x, - y);
@@ -104,7 +107,7 @@ CG_INLINE void UI_swizzleButtonIfNeed(Class swizzleClass){
             self.titleEdgeInsets = UIEdgeInsetsMake(x, - y, - x, y);
         }
             break;
-        case ButtonImageDirectionBottom:{
+        case ButtonDirectionCenterImageBottom:{
             x = textHeight / 2 + space;
             y = textWidth / 2;
             self.imageEdgeInsets = UIEdgeInsetsMake(x, y, -x, - y);
@@ -113,16 +116,44 @@ CG_INLINE void UI_swizzleButtonIfNeed(Class swizzleClass){
             self.titleEdgeInsets = UIEdgeInsetsMake(-x, - y, x, y);
         }
             break;
-        case ButtonImageDirectionLeft:{
+        case ButtonDirectionCenterImageLeft:{
             self.imageEdgeInsets = UIEdgeInsetsMake(0, -space,0, space);
             self.titleEdgeInsets = UIEdgeInsetsMake(0, space , 0, - space);
         }
             break;
-        case ButtonImageDirectionRight:{
+        case ButtonDirectionCenterImageRight:{
             self.imageEdgeInsets = UIEdgeInsetsMake(0, space + textWidth, 0, - (space + textWidth));
             self.titleEdgeInsets = UIEdgeInsetsMake(0, -(space + imageWidth), 0, (space + imageWidth));
         }
             break;
+        case ButtonDirectionLeftImageLeft:
+        {
+            self.imageEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 0);
+            self.titleEdgeInsets = UIEdgeInsetsMake(0, space, 0, 0);
+            self.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+            break;
+        }
+        case ButtonDirectionLeftImageRight:
+        {
+            self.imageEdgeInsets = UIEdgeInsetsMake(0, textWidth + space, 0, 0);
+            self.titleEdgeInsets = UIEdgeInsetsMake(0, -imageWidth, 0, 0);
+            self.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+            break;
+        }
+        case ButtonDirectionRightImageLeft:
+        {
+            self.imageEdgeInsets = UIEdgeInsetsMake(0, 0, 0, space);
+            self.titleEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 0);
+            self.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
+            break;
+        }
+        case ButtonDirectionRightImageRight:
+        {
+            self.imageEdgeInsets = UIEdgeInsetsMake(0, 0, 0, -textWidth);
+            self.titleEdgeInsets = UIEdgeInsetsMake(0, 0, 0, imageWidth + space);
+            self.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
+            break;
+        }
         default:
             break;
     }
@@ -144,6 +175,30 @@ CG_INLINE void UI_swizzleButtonIfNeed(Class swizzleClass){
         objc_setAssociatedObject(self, ButtonRuntimeLimitTapSpaceTimes, @(time), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         return self;
     };
+}
+
+-(void)setTfy_dragEnable:(BOOL)tfy_dragEnable {
+    objc_setAssociatedObject(self, DragEnableKey,@(tfy_dragEnable), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+-(BOOL)tfy_dragEnable {
+    return [objc_getAssociatedObject(self, DragEnableKey) boolValue];
+}
+
+-(void)setTfy_adsorbEnable:(BOOL)tfy_adsorbEnable {
+    objc_setAssociatedObject(self, AdsorbEnableKey,@(tfy_adsorbEnable), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+-(BOOL)tfy_adsorbEnable {
+    return [objc_getAssociatedObject(self, AdsorbEnableKey) boolValue];
+}
+
+- (void)setTfy_padding:(CGFloat)tfy_padding {
+    objc_setAssociatedObject(self, PaddingGKey,@(tfy_padding), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (CGFloat)tfy_padding {
+    return [objc_getAssociatedObject(self, PaddingGKey) floatValue];
 }
 
 - (void)tfy_cancelRecordTime{
@@ -237,5 +292,84 @@ CG_INLINE void UI_swizzleButtonIfNeed(Class swizzleClass){
         dispatch_source_cancel(self.timer);
     }
 }
+
+CGPoint begincenter;
+CGPoint beginPoint;
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    [super touchesBegan:touches withEvent:event];
+    self.highlighted = YES;
+    if (![objc_getAssociatedObject(self, DragEnableKey) boolValue]) {
+        return;
+    }
+    begincenter=self.superview.center;
+    UITouch *touch = [touches anyObject];
+    beginPoint = [touch locationInView:self.superview];
+}
+
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    self.highlighted = NO;
+    [super touchesMoved:touches withEvent:event];
+    if (![objc_getAssociatedObject(self, DragEnableKey) boolValue]) {
+        return;
+    }
+    
+    UITouch *touch = [touches anyObject];
+    
+    CGPoint nowPoint = [touch locationInView:self];
+    
+    float offsetX = nowPoint.x - beginPoint.x;
+    float offsetY = nowPoint.y - beginPoint.y;
+    
+    self.superview.center = CGPointMake(self.superview.center.x + offsetX, self.superview.center.y + offsetY);
+}
+
+-(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    if (self.superview && [objc_getAssociatedObject(self,AdsorbEnableKey) boolValue] ) {
+        if (self.highlighted) {
+            [self sendActionsForControlEvents:UIControlEventTouchDown];
+            self.highlighted = NO;
+        }
+        CGPoint nowPoint = self.superview.center;
+        float offsetX = nowPoint.x - begincenter.x;
+        float offsetY = nowPoint.y - begincenter.y;
+
+        if (fabsf(offsetX)<5 && fabsf(offsetY)<5) {
+            [super touchesEnded:touches withEvent:event];
+        }
+        float marginLeft = self.superview.frame.origin.x;
+        float marginRight = self.superview.superview.frame.size.width - self.superview.frame.origin.x - self.superview.frame.size.width;
+        float marginTop = self.superview.frame.origin.y;
+        float marginBottom = self.superview.superview.frame.size.height - self.superview.frame.origin.y - self.superview.frame.size.height;
+        
+        [UIView animateWithDuration:0.125 animations:^(void){
+            if (marginTop<60) {
+                self.superview.frame = CGRectMake(marginLeft<marginRight?marginLeft<self.tfy_padding?self.tfy_padding:self.superview.frame.origin.x:marginRight<self.tfy_padding?self.superview.superview.frame.size.width -self.superview.frame.size.width-self.tfy_padding:self.superview.frame.origin.x,
+                                                  self.tfy_padding,
+                                        self.superview.frame.size.width,
+                                        self.superview.frame.size.height);
+            }
+            else if (marginBottom<60) {
+                self.superview.frame = CGRectMake(marginLeft<marginRight?marginLeft<self.tfy_padding?self.tfy_padding:self.superview.frame.origin.x:marginRight<self.tfy_padding?self.superview.superview.frame.size.width -self.superview.frame.size.width-self.tfy_padding:self.superview.frame.origin.x,
+                                        self.superview.superview.frame.size.height - self.superview.frame.size.height-self.tfy_padding,
+                                        self.superview.frame.size.width,
+                                        self.superview.frame.size.height);
+                
+            } else {
+                self.superview.frame = CGRectMake(marginLeft<marginRight?self.tfy_padding:self.superview.superview.frame.size.width - self.superview.frame.size.width-self.tfy_padding,
+                                        self.superview.frame.origin.y,
+                                        self.superview.frame.size.width,
+                                        self.superview.frame.size.height);
+            }
+        }];
+    }else{
+        [super touchesEnded:touches withEvent:event];
+        
+    }
+}
+
 
 @end

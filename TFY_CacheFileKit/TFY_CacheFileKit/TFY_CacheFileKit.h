@@ -3,7 +3,7 @@
 //  TFY_CacheFileKit
 //
 //  Created by 田风有 on 2020/9/25.
-//  最新版本:2.0.7
+//  最新版本:2.0.9
 
 #import <Foundation/Foundation.h>
 
@@ -18,7 +18,7 @@ FOUNDATION_EXPORT const unsigned char TFY_CacheFileKitVersionString[];
 #import <TFY_CacheFileManager/TFY_CacheFileManager.h>
 #import <TFY_CacheFileController/TFY_CacheFileViewController.h>
 #import <TFY_FilePreviewController/TFY_FilePreviewController.h>
-#import <TFY_FilePreviewController/TFY_OpenFileTool.h>
+#import <TFY_FilePreviewController/TFY_DocumentPicker.h>
 
 #else
 //文件管理
@@ -28,6 +28,6 @@ FOUNDATION_EXPORT const unsigned char TFY_CacheFileKitVersionString[];
 //直接浏览文件
 #import "TFY_FilePreviewController.h"
 //分享
-#import "TFY_OpenFileTool.h"
+#import "TFY_DocumentPicker.h"
 
 #endif

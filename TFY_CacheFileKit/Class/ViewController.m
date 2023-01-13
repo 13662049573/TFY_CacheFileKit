@@ -31,8 +31,9 @@
     
     UIBarButtonItem *item4 = [[UIBarButtonItem alloc] initWithTitle:@"缓存" style:UIBarButtonItemStyleDone target:self action:@selector(buttonClick)];
     
+    UIBarButtonItem *item5 = [[UIBarButtonItem alloc] initWithTitle:@"获取" style:UIBarButtonItemStyleDone target:self action:@selector(acquirebuttonClick)];
 
-    self.navigationItem.rightBarButtonItems = @[item3,item4];
+    self.navigationItem.rightBarButtonItems = @[item3,item4,item5];
     
 }
 
@@ -50,9 +51,14 @@
 //分享文件
 - (void)shareFile:(UIBarButtonItem *)barBtn {
     NSURL *url4 = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"女性备孕体温计协议调试命令.txt" ofType:nil]];
-    [[TFY_OpenFileTool sharedOpenfileTool] openFileWithFilePath:url4 andItem:barBtn andNavTitleName:@"浏览" andVC:self Document:TFY_DocumentOptionsMenu];
+    [[TFY_DocumentPicker sharedOpen] openFileWithFilePath:url4 andItem:barBtn andNavTitleName:@"浏览" Document:TFY_DocumentOptionsMenu];
 }
 
+- (void)acquirebuttonClick {
+    [[TFY_DocumentPicker sharedOpen] acquireDocument:TFY_DocumentModeOpen Block:^(NSString * _Nonnull fileName, NSString * _Nonnull filePath) {
+        NSLog(@"===========:%@========:%@",fileName,filePath);
+    }];
+}
 
 //自定义界面
 - (void)ThecustomClick {
