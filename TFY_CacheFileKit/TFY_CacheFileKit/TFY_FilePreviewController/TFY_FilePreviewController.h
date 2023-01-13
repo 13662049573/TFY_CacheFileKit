@@ -7,13 +7,6 @@
 
 #import <QuickLook/QuickLook.h>
 
-typedef enum : NSUInteger {
-    TFY_JumpPush,//push 无动画
-    TFY_JumpPushAnimat,//push 有动画
-    TFY_JumpPresent,//Present 无动画
-    TFY_JumpPresentAnimat,//Present 有动画
-} TFY_JumpMode;
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface TFY_FilePreviewController : QLPreviewController
@@ -21,10 +14,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSString *previewItemTitle;
 
 /** 预览多个文件 单个文件时数组传一个 */
-- (void)previewFileWithPaths:(NSArray <NSURL *>*)filePathArr on:(UIViewController *)vc jump:(TFY_JumpMode)jump;
+@property(nonatomic , copy)NSArray<NSURL *> *filePathArr;
 
 //单文件预览
-- (void)previewFileloadUrlPath:(NSURL *)fileUrl on:(UIViewController *)vc jump:(TFY_JumpMode)jump;
+@property(nonatomic , strong)NSURL *fileUrl;
 
 /** 将要退出 */
 - (void)setWillDismissBlock:(void (^)(void))willDismissBlock;
@@ -39,9 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 //加载数据 同时设置当前预览的文件  多文件
 - (void)loadUrlPathList:(NSArray<NSURL *> *)urlPathList andCurrentPreVItemIndex:(NSInteger)index;
-
-//单文件
-- (void)loadUrlPath:(NSURL *)fileUrl;
 
 @end
 

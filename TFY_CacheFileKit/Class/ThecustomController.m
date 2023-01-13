@@ -28,7 +28,7 @@
 - (void)viewTemplate {
    
     TFY_FilePreviewController *preview = [[TFY_FilePreviewController alloc] init];//创建对象
-    [preview loadUrlPath:self.url];
+    preview.fileUrl = self.url;
     [self addChildViewController:preview];
     preview.view.frame = CGRectMake(0, -TFY_kNavTimebarHeight(), TFY_Width_W(), TFY_Height_H() - TFY_kBottomBarHeight());
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{

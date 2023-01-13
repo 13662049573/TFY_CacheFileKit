@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   filePath 文件路径
  *
- *  @return NSArray
+ *   NSArray
  */
 - (NSArray *)fileModelsWithFilePath:(NSString *)filePath;
 
@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   filePath 文件路径
  *
- *  @return BOOL
+ *   BOOL
  */
 - (BOOL)isFileSystemWithFilePath:(NSString *)filePath;
 
@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   type 文件类型
  *
- *  @return BOOL
+ *   BOOL
  */
 - (BOOL)isFilterFileTypeWithFileType:(NSString *)type;
 
@@ -65,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   filePath 文件路径
  *
- *  @return SYCacheFileType
+ *   SYCacheFileType
  */
 - (TFY_CacheFileType)fileTypeReadWithFilePath:(NSString *)filePath;
 
@@ -76,7 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   filePath 文件路径
  *
- *  @return UIImage
+ *   UIImage
  */
 - (UIImage *)fileTypeImageWithFilePath:(NSString *)filePath;
 
@@ -87,7 +87,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   filePath 文件路径
  *
- *  @return NSString
+ *   NSString
  */
 + (NSString *)fileNameWithFilePath:(NSString *)filePath;
 
@@ -96,7 +96,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   filePath 文件路径
  *
- *  @return NSString
+ *   NSString
  */
 + (NSString *)fileTypeWithFilePath:(NSString *)filePath;
 
@@ -105,7 +105,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   filePath 文件路径
  *
- *  @return NSString
+ *   NSString
  */
 + (NSString *)fileTypeExtensionWithFilePath:(NSString *)filePath;
 
@@ -116,35 +116,35 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  *  Home目录路径
  *
- *  @return NSString
+ *   NSString
  */
 + (NSString *)homeDirectoryPath;
 
 /**
  *  Document目录路径
  *
- *  @return NSString
+ *   NSString
  */
 + (NSString *)documentDirectoryPath;
 
 /**
  *  Cache目录路径
  *
- *  @return NSString
+ *   NSString
  */
 + (NSString *)cacheDirectoryPath;
 
 /**
  *  Library目录路径
  *
- *  @return NSString
+ *   NSString
  */
 + (NSString *)libraryDirectoryPath;
 
 /**
  *  Tmp目录路径
  *
- *  @return NSString
+ *   NSString
  */
 + (NSString *)tmpDirectoryPath;
 
@@ -155,7 +155,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   filePath 文件路径
  *
- *  @return NSArray
+ *   NSArray
  */
 + (NSArray *)subPathsWithFilePath:(NSString *)filePath;
 
@@ -164,7 +164,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   filePath 文件路径
  *
- *  @return NSArray
+ *   NSArray
  */
 + (NSArray *)subFilesPathsWithFilePath:(NSString *)filePath;
 
@@ -173,7 +173,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   filePath 文件路径
  *
- *  @return BOOL
+ *   BOOL
  */
 + (BOOL)isFileDirectoryWithFilePath:(NSString *)filePath;
 
@@ -182,7 +182,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   filePath 文件路径
  *
- *  @return NSArray
+ *   NSArray
  */
 + (NSArray *)subfileDirectionsWithFilePath:(NSString *)filePath;
 
@@ -191,7 +191,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   filePath 文件路径
  *
- *  @return NSArray
+ *   NSArray
  */
 + (NSArray *)subfilesWithFilePath:(NSString *)filePath;
 
@@ -200,7 +200,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   filePath 文件路径
  *
- *  @return NSArray
+ *   NSArray
  */
 + (NSArray *)imagefilesWithFilePath:(NSString *)filePath;
 
@@ -211,7 +211,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   filePath 文件路径
  *
- *  @return BOOL
+ *   BOOL
  */
 + (BOOL)isFileExists:(NSString *)filePath;
 
@@ -227,7 +227,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   filePath 文件路径
  *
- *  @return NSData
+ *   NSData
  */
 + (NSData *)readFileWithFilePath:(NSString *)filePath;
 
@@ -239,7 +239,7 @@ NS_ASSUME_NONNULL_BEGIN
  *   filePath 新建目录所在的目录
  *   fileName 新建目录的目录名称，如xxx，或xxx/xxx，或xxx.png，或xxx/xx.png
  *
- *  @return NSString
+ *   NSString
  */
 + (NSString *)newFilePathWithPath:(NSString *_Nonnull)filePath name:(NSString * _Nonnull)fileName;
 
@@ -248,7 +248,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   fileName 新建的目录名称
  *
- *  @return NSString
+ *   NSString
  */
 + (NSString *)newFilePathDocumentWithName:(NSString *)fileName;
 
@@ -257,7 +257,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   fileName 新建的目录名称
  *
- *  @return NSString
+ *   NSString
  */
 + (NSString *)newFilePathCacheWithName:(NSString *)fileName;
 
@@ -268,7 +268,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   filePath 文件路径
  *
- *  @return BOOL
+ *   BOOL
  */
 + (BOOL)deleteFileWithFilePath:(NSString *)filePath;
 
@@ -277,7 +277,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   directory 指定目录
  *
- *  @return BOOL
+ *   BOOL
  */
 + (BOOL)deleteFileWithDirectory:(NSString *)directory;
 
@@ -289,7 +289,7 @@ NS_ASSUME_NONNULL_BEGIN
  *   fromPath 目标文件路径
  *   toPath   复制后文件路径
  *
- *  @return BOOL
+ *   BOOL
  */
 + (BOOL)copyFileWithFilePath:(NSString *)fromPath toPath:(NSString *)toPath;
 
@@ -301,7 +301,7 @@ NS_ASSUME_NONNULL_BEGIN
  *   fromPath 移动前位置
  *   toPath   移动后位置
  *
- *  @return BOOL
+ *   BOOL
  */
 
 + (BOOL)moveFileWithFilePath:(NSString *)fromPath toPath:(NSString *)toPath;
@@ -314,7 +314,7 @@ NS_ASSUME_NONNULL_BEGIN
  *   filePath 文件路径
  *   newName 文件新名称
  *
- *  @return BOOL
+ *   BOOL
  */
 + (BOOL)renameFileWithFilePath:(NSString *)filePath newName:(NSString *)newName;
 
@@ -325,7 +325,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   filePath 文件路径
  *
- *  @return NSDictionary
+ *   NSDictionary
  */
 + (NSDictionary *)fileAttributesWithFilePath:(NSString *)filePath;
 
@@ -334,7 +334,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   filePath 文件路径
  *
- *  @return double
+ *   double
  */
 + (double)fileSizeNumberWithFilePath:(NSString *)filePath;
 
@@ -345,7 +345,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   fileSize 文件大小
  *
- *  @return NSString
+ *   NSString
  */
 + (NSString *)fileSizeStringConversionWithNumber:(double)fileSize;
 
@@ -354,7 +354,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   filePath 文件路径
  *
- *  @return String
+ *   String
  */
 + (NSString *)fileSizeStringWithFilePath:(NSString *)filePath;
 
@@ -363,7 +363,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   directory 指定目录
  *
- *  @return double
+ *   double
  */
 + (double)fileSizeTotalNumberWithDirectory:(NSString *)directory;
 
@@ -372,7 +372,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   directory 指定目录
  *
- *  @return NSString
+ *   NSString
  */
 + (NSString *)fileSizeTotalStringWithDirectory:(NSString *)directory;
 @end

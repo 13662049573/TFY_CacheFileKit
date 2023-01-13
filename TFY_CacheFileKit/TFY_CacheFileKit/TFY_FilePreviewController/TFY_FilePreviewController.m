@@ -37,27 +37,10 @@
     UIToolbar *toolBar = [UIToolbar appearanceWhenContainedInInstancesOfClasses:@[QLPreviewController.class]];
     [toolBar setBackgroundImage:[self imageWithColor:UIColor.whiteColor size:CGSizeMake(1, 1)] forToolbarPosition:UIBarPositionBottom barMetrics:UIBarMetricsDefault];
     [toolBar setTintColor:UIColor.blackColor];
-    
 }
 
-#pragma mark - private methods
-- (void)jumpWith:(TFY_JumpMode)jump on:(UIViewController *)vc{
-    switch (jump) {
-        case TFY_JumpPush:
-        case TFY_JumpPushAnimat:
-            [vc.navigationController pushViewController:self animated:(jump == TFY_JumpPushAnimat)];
-            break;
-        case TFY_JumpPresent:
-        case TFY_JumpPresentAnimat:
-            [vc presentViewController:self animated:(jump == TFY_JumpPresentAnimat) completion:nil];
-            break;
-    }
-    [self reloadData];
-}
-
-#pragma mark - public methods
-- (void)previewFileWithPaths:(NSArray <NSURL *>*)filePathArr  on:(UIViewController *)vc jump:(TFY_JumpMode)jump{
-    [self jumpWith:jump on:vc];
+- (void)setFilePathArr:(NSArray<NSURL *> *)filePathArr {
+    _filePathArr = filePathArr;
     for (NSURL *urlPath in filePathArr) {
         if ([TFY_FilePreviewController canPreviewItem:urlPath]) {
             [self.fileUrlList addObject:urlPath];
@@ -66,9 +49,8 @@
     [self reloadData];
 }
 
-//单文件预览
-- (void)previewFileloadUrlPath:(NSURL *)fileUrl on:(UIViewController *)vc jump:(TFY_JumpMode)jump {
-    [self jumpWith:jump on:vc];
+- (void)setFileUrl:(NSURL *)fileUrl {
+    _fileUrl = fileUrl;
     if ([TFY_FilePreviewController canPreviewItem:fileUrl]) {
         [self.fileUrlList addObject:fileUrl];
     }
@@ -83,13 +65,6 @@
         }
     }
     self.currentPreviewItemIndex = index;
-    [self reloadData];
-}
-//单文件
-- (void)loadUrlPath:(NSURL *)fileUrl {
-    if ([TFY_FilePreviewController canPreviewItem:fileUrl]) {
-        [self.fileUrlList addObject:fileUrl];
-    }
     [self reloadData];
 }
 
@@ -157,4 +132,5 @@
     UIGraphicsEndImageContext();
     return image;
 }
+
 @end

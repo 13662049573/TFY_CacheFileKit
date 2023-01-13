@@ -45,7 +45,8 @@
     NSURL *url4 = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"女性备孕体温计协议调试命令.txt" ofType:nil]];
     NSURL *url5 = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"绿萌营业执照.PDF" ofType:nil]];
     TFY_FilePreviewController *pre = TFY_FilePreviewController.new;
-    [pre previewFileWithPaths:@[url,url2,url3,url4,url5] on:self jump:TFY_JumpPushAnimat];
+    pre.filePathArr = @[url,url2,url3,url4,url5];
+    [self.navigationController pushViewController:pre animated:YES];
 }
 
 //分享文件
