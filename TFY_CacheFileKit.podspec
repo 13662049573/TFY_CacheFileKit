@@ -2,7 +2,7 @@
 Pod::Spec.new do |spec|
   spec.name         = "TFY_CacheFileKit"
 
-  spec.version      = "2.0.7"
+  spec.version      = "2.0.9"
 
   spec.summary      = "文件管理，分享，浏览"
 
@@ -33,6 +33,7 @@ Pod::Spec.new do |spec|
 
  spec.subspec 'TFY_FilePreviewController' do |ss|
     ss.source_files  = "TFY_CacheFileKit/TFY_CacheFileKit/TFY_FilePreviewController/**/*.{h,m}"
+    ss.dependency "TFY_CacheFileKit/TFY_CacheFileManager"
  end
 
   spec.resources     = "TFY_CacheFileKit/TFY_CacheFileKit/TFY_CacheFileImages.bundle"
