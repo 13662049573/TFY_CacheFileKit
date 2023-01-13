@@ -7,6 +7,7 @@
 
 #import "TFY_DocumentPicker.h"
 #import <MobileCoreServices/MobileCoreServices.h>
+#import <QuickLook/QuickLook.h>
 #import "TFY_CacheFileUilt.h"
 
 @interface TFY_DocumentPicker ()<UIDocumentPickerDelegate,UIDocumentInteractionControllerDelegate>
