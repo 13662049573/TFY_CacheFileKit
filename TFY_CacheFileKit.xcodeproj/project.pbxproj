@@ -37,6 +37,7 @@
 		365EF85C251DE45F0020C3E2 /* 4.xlsx in Resources */ = {isa = PBXBuildFile; fileRef = 365EF85B251DE45F0020C3E2 /* 4.xlsx */; };
 		36832FFC25209105007BECD2 /* TFY_PreviewCustomItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 36832FFB25209105007BECD2 /* TFY_PreviewCustomItem.m */; };
 		36857EAD25216CC80029C3D4 /* ThecustomController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36857EAC25216CC80029C3D4 /* ThecustomController.m */; };
+		3695F31F2977C09000D91CB2 /* UIView+document.m in Sources */ = {isa = PBXBuildFile; fileRef = 3695F31E2977C09000D91CB2 /* UIView+document.m */; };
 		36D56F7E2545146A0095323D /* NAVViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D56F7D2545146A0095323D /* NAVViewController.m */; };
 		88344FE747BB86F053CC3172 /* Pods_TFY_CacheFileKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F58A461449BB3B50E14CA1E /* Pods_TFY_CacheFileKit.framework */; };
 		C1236371BA63978D15FFF922 /* Pods_TFY_CacheFileKit_TFY_CacheFileKitUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69D1C4A83388DC577885E003 /* Pods_TFY_CacheFileKit_TFY_CacheFileKitUITests.framework */; };
@@ -119,6 +120,8 @@
 		36832FFB25209105007BECD2 /* TFY_PreviewCustomItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TFY_PreviewCustomItem.m; sourceTree = "<group>"; };
 		36857EAB25216CC80029C3D4 /* ThecustomController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ThecustomController.h; sourceTree = "<group>"; };
 		36857EAC25216CC80029C3D4 /* ThecustomController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ThecustomController.m; sourceTree = "<group>"; };
+		3695F31D2977C09000D91CB2 /* UIView+document.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+document.h"; sourceTree = "<group>"; };
+		3695F31E2977C09000D91CB2 /* UIView+document.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIView+document.m"; sourceTree = "<group>"; };
 		36D56F7C2545146A0095323D /* NAVViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NAVViewController.h; sourceTree = "<group>"; };
 		36D56F7D2545146A0095323D /* NAVViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NAVViewController.m; sourceTree = "<group>"; };
 		5C0FADD3F2F0209EA5CCDDCB /* Pods-TFY_CacheFileKit-TFY_CacheFileKitUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TFY_CacheFileKit-TFY_CacheFileKitUITests.debug.xcconfig"; path = "Target Support Files/Pods-TFY_CacheFileKit-TFY_CacheFileKitUITests/Pods-TFY_CacheFileKit-TFY_CacheFileKitUITests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -268,6 +271,8 @@
 				363D40E7251D9A6B00932D3E /* TFY_CacheFileManager.m */,
 				363D40EC251D9D4E00932D3E /* TFY_CacheFileUilt.h */,
 				363D40ED251D9D4E00932D3E /* TFY_CacheFileUilt.m */,
+				3695F31D2977C09000D91CB2 /* UIView+document.h */,
+				3695F31E2977C09000D91CB2 /* UIView+document.m */,
 			);
 			path = TFY_CacheFileManager;
 			sourceTree = "<group>";
@@ -595,6 +600,7 @@
 				3654BADC2970ED8800089934 /* TFY_DocumentPicker.m in Sources */,
 				365EF817251DD7B60020C3E2 /* TFY_CacheFileTable.m in Sources */,
 				363D4097251D956B00932D3E /* main.m in Sources */,
+				3695F31F2977C09000D91CB2 /* UIView+document.m in Sources */,
 				36832FFC25209105007BECD2 /* TFY_PreviewCustomItem.m in Sources */,
 				363D4109251DBC6B00932D3E /* TFY_CacheFileCell.m in Sources */,
 				363D40C8251D95EE00932D3E /* ViewController.m in Sources */,

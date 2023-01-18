@@ -56,7 +56,7 @@
 }
 
 - (void)acquirebuttonClick {
-    [[TFY_DocumentPicker sharedOpen] acquireDocument:TFY_DocumentModeOpen Block:^(NSString * _Nonnull fileName, NSString * _Nonnull filePath) {
+    [[TFY_DocumentPicker sharedOpen] acquireDocumentTypes:@[] Block:^(NSString * _Nonnull fileName, NSString * _Nonnull filePath) {
         NSLog(@"===========:%@========:%@",fileName,filePath);
     }];
 }

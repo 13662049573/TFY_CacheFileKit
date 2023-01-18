@@ -212,11 +212,13 @@ static TFY_DocumentPicker *_openFileTool;
 /**
  获取系统文件内容
  */
-- (void)acquireDocument:(TFY_DocumentMode)document Block:(void(^)(NSString *fileName,NSString *filePath))block{
+- (void)acquireDocumentTypes:(NSArray <NSString *>*)allowedUTIs Block:(void(^)(NSString *fileName,NSString *filePath))block{
     self.document_Block = block;
-    UIDocumentPickerViewController *docPicker = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:self.dataArr inMode:(UIDocumentPickerMode)document];
+    if (allowedUTIs.count == 0) {
+        allowedUTIs = self.dataArr;
+    }
+    UIDocumentPickerViewController *docPicker = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:allowedUTIs inMode:UIDocumentPickerModeOpen];
     docPicker.delegate = self;
-    //present the document picker
     [self.documentVc presentViewController:docPicker animated:YES completion:^{}];
 }
 
@@ -297,7 +299,6 @@ static TFY_DocumentPicker *_openFileTool;
 - (UIViewController *)documentInteractionControllerViewControllerForPreview:(UIDocumentInteractionController *)controller {
     return self.documentVc;
 }
-
 
 #pragma mark - UIDocumentPickerDelegate
 - (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray <NSURL *>*)urls

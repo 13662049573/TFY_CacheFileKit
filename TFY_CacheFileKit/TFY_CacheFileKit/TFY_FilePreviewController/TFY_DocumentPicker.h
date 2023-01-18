@@ -9,13 +9,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef NS_ENUM(NSUInteger, TFY_DocumentMode) {
-    TFY_DocumentModeImport,
-    TFY_DocumentModeOpen,
-    TFY_DocumentModeExportToService,
-    TFY_DocumentModeMoveToService
-};
-
 typedef enum : NSUInteger {
     TFY_Document,//直接预览  然后在预览中选择是否使用其他软件打开
     TFY_DocumentOpenInMenu,//显示提示框 但是第三行不能选择预览
@@ -40,7 +33,7 @@ typedef enum : NSUInteger {
 /**
  获取系统文件内容
  */
-- (void)acquireDocument:(TFY_DocumentMode)document Block:(void(^)(NSString *fileName,NSString *filePath))block;
+- (void)acquireDocumentTypes:(NSArray<NSString *>*)allowedUTIs Block:(void(^)(NSString *fileName,NSString *filePath))block;
 
 @end
 
