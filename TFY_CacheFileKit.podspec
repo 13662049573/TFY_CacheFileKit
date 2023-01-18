@@ -2,7 +2,7 @@
 Pod::Spec.new do |spec|
   spec.name         = "TFY_CacheFileKit"
 
-  spec.version      = "2.1.0"
+  spec.version      = "2.1.1"
 
   spec.summary      = "文件管理，分享，浏览"
 
