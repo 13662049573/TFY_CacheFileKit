@@ -11,7 +11,6 @@
 #import "TFY_CacheFileUilt.h"
 
 @interface TFY_DocumentPicker ()<UIDocumentPickerDelegate,UIDocumentInteractionControllerDelegate>
-@property(nonatomic , strong)UIViewController *documentVc;
 @property(nonatomic , copy)NSArray *dataArr;
 @property (nonatomic , copy, nullable) void (^document_Block)(NSString *fileName,NSString *filePath);
 @end
@@ -203,8 +202,6 @@ static TFY_DocumentPicker *_openFileTool;
                          @"org.openxmlformats.presentationml.presentation",
                          @"com.microsoft.excel.xls",
                          @"org.openxmlformats.spreadsheetml.sheet"];
-        
-        self.documentVc = [TFY_CacheFileUilt presentMenuView];
     }
     return self;
 }
@@ -219,7 +216,7 @@ static TFY_DocumentPicker *_openFileTool;
     }
     UIDocumentPickerViewController *docPicker = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:allowedUTIs inMode:UIDocumentPickerModeOpen];
     docPicker.delegate = self;
-    [self.documentVc presentViewController:docPicker animated:YES completion:^{}];
+    [[TFY_CacheFileUilt presentMenuView] presentViewController:docPicker animated:YES completion:^{}];
 }
 
 /*
@@ -236,10 +233,10 @@ static TFY_DocumentPicker *_openFileTool;
             [documentIntController presentPreviewAnimated:YES];//直接预览  然后在预览中选择是否使用其他软件打开
         }break;
         case TFY_DocumentOpenInMenu:{
-            [documentIntController presentOpenInMenuFromRect:self.documentVc.view.bounds inView:self.documentVc.view animated:YES];//显示提示框 但是第三行不能选择预览
+            [documentIntController presentOpenInMenuFromRect:[TFY_CacheFileUilt presentMenuView].view.bounds inView:[TFY_CacheFileUilt presentMenuView].view animated:YES];//显示提示框 但是第三行不能选择预览
         }break;
         case TFY_DocumentOptionsMenu:{
-            [documentIntController presentOptionsMenuFromRect:self.documentVc.view.bounds inView:self.documentVc.view animated:YES];//显示提示框 再选择是否开启预览
+            [documentIntController presentOptionsMenuFromRect:[TFY_CacheFileUilt presentMenuView].view.bounds inView:[TFY_CacheFileUilt presentMenuView].view animated:YES];//显示提示框 再选择是否开启预览
         }break;
     }
 }
@@ -297,7 +294,7 @@ static TFY_DocumentPicker *_openFileTool;
 #pragma mark -- UIDocumentInteractionControllerDelegate
 //返回的控制器  指明预览将在那个控制器上进行 不进行设置 无法进行预览
 - (UIViewController *)documentInteractionControllerViewControllerForPreview:(UIDocumentInteractionController *)controller {
-    return self.documentVc;
+    return [TFY_CacheFileUilt presentMenuView];
 }
 
 #pragma mark - UIDocumentPickerDelegate
